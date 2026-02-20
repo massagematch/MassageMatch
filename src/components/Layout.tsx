@@ -3,6 +3,8 @@ import { useAuth } from '@/contexts/AuthContext'
 import { AccessTimer } from '@/components/AccessTimer'
 import { StreakBadge } from '@/components/StreakBadge'
 import { useRealtime } from '@/contexts/RealtimeContext'
+import { AdminFooterButton } from '@/components/AdminFooterButton'
+import { NotificationBell } from '@/components/NotificationBell'
 import './Layout.css'
 
 export default function Layout() {
@@ -14,6 +16,7 @@ export default function Layout() {
       <header className="header">
         <span className="brand">MassageMatch Thailand</span>
         <div className="header-right">
+          <NotificationBell />
           <StreakBadge />
           <AccessTimer />
           {connected && <span className="badge live" title="Realtime sync">Live</span>}
@@ -38,6 +41,7 @@ export default function Layout() {
       <main className="main">
         <Outlet />
       </main>
+      <AdminFooterButton />
     </div>
   )
 }

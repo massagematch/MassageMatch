@@ -123,6 +123,15 @@ Deno.serve(async (req) => {
           if (pi?.latest_charge) {
             await supabase.from('unlocked_profiles').update({ stripe_charge_id: pi.latest_charge }).eq('stripe_payment_id', paymentId)
           }
+          if (therapistId) {
+            await supabase.from('notifications').insert({
+              user_id: therapistId,
+              type: 'user_unlocked_you',
+              title: 'Someone unlocked your profile!',
+              body: 'You got a new unlock. Check your dashboard.',
+              link: '/profile',
+            })
+          }
         }
         break
       }

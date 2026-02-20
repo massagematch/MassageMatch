@@ -24,7 +24,9 @@ export default function Profile() {
   const [locationLng, setLocationLng] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [verifying, setVerifying] = useState(false)
   const { validateSocial, validationResults, loading: validating } = useSocialValidation()
+  const verifiedPhoto = (profile as { verified_photo?: boolean })?.verified_photo ?? false
 
   useEffect(() => {
     if (profile?.social_links) {
@@ -124,6 +126,27 @@ export default function Profile() {
       return !result || result.valid
     })
 
+  const handleVerifyPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !user?.id) return
+    setVerifying(true)
+    try {
+      const path = `${user.id}/verification.${file.name.split('.').pop() || 'jpg'}`
+      const { error: upErr } = await supabase.storage.from('therapist-images').upload(path, file, { upsert: true })
+      if (upErr) throw upErr
+      await supabase.from('profiles').update({ verified_photo: true, updated_at: new Date().toISOString() }).eq('user_id', user.id)
+      if (profile?.role === 'therapist') {
+        await supabase.from('therapists').update({ verified_photo: true }).eq('id', user.id)
+      }
+      await refetchProfile()
+    } catch (err) {
+      console.error('Verify photo failed:', err)
+    } finally {
+      setVerifying(false)
+      e.target.value = ''
+    }
+  }
+
   const handleShareLocationToggle = () => {
     if (!shareLocation && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -143,6 +166,21 @@ export default function Profile() {
     <div className="profile-page">
       <h1>Your Profile</h1>
       <p className="profile-subtitle">Add your location and social contacts</p>
+
+      <section className="profile-section profile-verify">
+        <h2 className="profile-section-title">Photo verification</h2>
+        {verifiedPhoto ? (
+          <p className="verified-label"><span className="verified-badge">Verified ✓</span> Your photo is verified.</p>
+        ) : (
+          <div>
+            <label className="btn-verify-photo">
+              <input type="file" accept="image/*" capture="user" onChange={handleVerifyPhoto} disabled={verifying} hidden />
+              {verifying ? 'Uploading…' : 'Verify Photo'}
+            </label>
+            <p className="verify-hint">Upload a selfie to get the Verified badge (+25% trust).</p>
+          </div>
+        )}
+      </section>
 
       <section className="profile-section">
         <h2 className="profile-section-title">📍 Location (Thailand)</h2>

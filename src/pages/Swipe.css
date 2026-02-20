@@ -4,6 +4,97 @@
   padding: 0.5rem 0;
 }
 
+.swipe-page-full {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 100%;
+  padding: 0;
+}
+
+.swipe-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  flex-shrink: 0;
+  background: var(--surface);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.swipe-header-btn {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.swipe-header-btn:hover {
+  color: var(--text);
+}
+
+.swipe-header-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.swipe-filter-panel {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.swipe-stack {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 320px;
+  margin: 0 1rem;
+  border-radius: 16px;
+}
+
+.swipe-stack-card {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+}
+
+.swipe-stack-card.stack-0 {
+  z-index: 12;
+}
+
+.swipe-stack-card.stack-1 {
+  z-index: 11;
+  transform: scale(0.97);
+  pointer-events: none;
+}
+
+.swipe-stack-card.stack-2 {
+  z-index: 10;
+  transform: scale(0.94);
+  pointer-events: none;
+}
+
+.swipe-footer-meta {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.swipe-alert {
+  position: fixed;
+  bottom: 1rem;
+  left: 1rem;
+  right: 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+  z-index: 20;
+}
+
 .swipe-header {
   display: flex;
   justify-content: space-between;
@@ -24,6 +115,13 @@
 
 .radius-filter input {
   width: auto;
+}
+
+.card-verified {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: #22c55e;
+  margin-left: 0.5rem;
 }
 
 .card-location {

@@ -29,6 +29,36 @@
   color: var(--accent);
 }
 
+.profile-verify .verified-badge {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.verified-label {
+  margin: 0;
+}
+
+.btn-verify-photo {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.btn-verify-photo:has(input:disabled) {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.verify-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
 .share-location-row {
   margin-top: 1rem;
   display: flex;

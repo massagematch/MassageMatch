@@ -1,0 +1,117 @@
+.admin-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(15, 23, 42, 0.5);
+  margin-top: auto;
+}
+
+.admin-footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  opacity: 0.5;
+}
+
+.admin-footer-copy {
+  color: var(--muted);
+}
+
+.admin-footer-btn {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.7rem;
+  height: 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0.4;
+  border-radius: 4px;
+}
+
+.admin-footer-btn:hover {
+  opacity: 1;
+  color: var(--text);
+}
+
+/* Hide on touch devices (mobile) */
+@media (hover: none) {
+  .admin-footer-btn {
+    display: none;
+  }
+}
+
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.admin-modal {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.admin-modal-title {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+}
+
+.admin-modal-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.admin-modal-input::placeholder {
+  color: var(--muted);
+}
+
+.admin-modal-submit {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.admin-modal-submit:hover:not(:disabled) {
+  opacity: 0.95;
+}
+
+.admin-modal-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.admin-modal-cancel {
+  display: block;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.35rem;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+}

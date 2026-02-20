@@ -1,36 +1,28 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useSwipe } from '@/hooks/useSwipe'
 import { supabase } from '@/lib/supabase'
-import { OptimizedImage } from '@/components/OptimizedImage'
-import { MapButton } from '@/components/MapButton'
+import { SwipeCard, type SwipeCardProfile } from '@/components/SwipeCard'
 import { UnlockModal } from '@/components/UnlockModal'
 import { trackSwipe } from '@/lib/analytics'
 import { distanceKm } from '@/lib/geo'
 import './Swipe.css'
 
 const RADIUS_KM = 5
-
-type Therapist = {
-  id: string
-  name: string
-  image_url: string | null
-  bio: string | null
-  location_city?: string | null
-  location_lat?: number | null
-  location_lng?: number | null
-  share_location?: boolean
-}
+const CARD_SWIPE_THRESHOLD = 80
 
 export default function Swipe() {
   const { profile } = useAuth()
   const { performSwipe, loading, error } = useSwipe()
-  const [therapists, setTherapists] = useState<Therapist[]>([])
+  const [therapists, setTherapists] = useState<SwipeCardProfile[]>([])
   const [index, setIndex] = useState(0)
-  const [feedback, setFeedback] = useState<'like' | 'pass' | null>(null)
   const [radiusFilter, setRadiusFilter] = useState(true)
-  const [unlockTherapist, setUnlockTherapist] = useState<Therapist | null>(null)
+  const [unlockTherapist, setUnlockTherapist] = useState<SwipeCardProfile | null>(null)
+  const [filterOpen, setFilterOpen] = useState(false)
+  const [dragStartX, setDragStartX] = useState<number | null>(null)
+  const [dragCurrentX, setDragCurrentX] = useState(0)
+  const lastSwipeRef = useRef<{ index: number; id: string } | null>(null)
 
   const customerLat = (profile as { location_lat?: number })?.location_lat
   const customerLng = (profile as { location_lng?: number })?.location_lng
@@ -40,13 +32,19 @@ export default function Swipe() {
     const load = async () => {
       let query = supabase
         .from('therapists')
-        .select('id, name, image_url, bio, location_city, location_lat, location_lng, share_location')
+        .select('id, name, image_url, images, bio, location_city, location_lat, location_lng, share_location, verified_photo')
         .limit(50)
-      if (customerCity) {
-        query = query.eq('location_city', customerCity)
-      }
+      if (customerCity) query = query.eq('location_city', customerCity)
       const { data } = await query
-      setTherapists((data as Therapist[]) ?? [])
+      const rows = (data ?? []) as (SwipeCardProfile & { images?: unknown })[]
+      const withDistance = rows.map((t) => {
+        let distance_km: number | null = null
+        if (customerLat != null && customerLng != null && t.location_lat != null && t.location_lng != null) {
+          distance_km = distanceKm(customerLat, customerLng, t.location_lat, t.location_lng)
+        }
+        return { ...t, images: Array.isArray(t.images) ? t.images : null, distance_km } as SwipeCardProfile
+      })
+      setTherapists(withDistance)
     }
     load()
   }, [customerCity])
@@ -55,32 +53,63 @@ export default function Swipe() {
     if (!radiusFilter || customerLat == null || customerLng == null) return therapists
     return therapists.filter((t) => {
       if (!t.share_location || t.location_lat == null || t.location_lng == null) return true
-      return distanceKm(customerLat, customerLng, t.location_lat, t.location_lng) < RADIUS_KM
+      return (t.distance_km ?? 0) < RADIUS_KM
     })
   }, [therapists, radiusFilter, customerLat, customerLng])
 
-  const currentList = radiusFilter && (customerLat != null && customerLng != null) ? therapistsInRadius : therapists
+  const currentList = radiusFilter && customerLat != null && customerLng != null ? therapistsInRadius : therapists
   const current = currentList[index]
   const canSwipe = (profile?.swipes_remaining ?? 0) > 0 && !loading
 
-  async function handleAction(action: 'like' | 'pass') {
-    if (!current || !canSwipe) return
-    setFeedback(action)
-    trackSwipe(action, current.id)
-    const ok = await performSwipe(current.id, action)
-    if (ok) {
-      setTimeout(() => {
-        setFeedback(null)
-        setIndex((i) => i + 1)
-      }, 400)
-    } else {
-      setFeedback(null)
+  const dragX = dragStartX != null ? dragCurrentX - dragStartX : 0
+
+  const handleDragStart = useCallback((clientX: number) => {
+    setDragStartX(clientX)
+    setDragCurrentX(clientX)
+  }, [])
+
+  const handleDragMove = useCallback((clientX: number) => {
+    setDragCurrentX(clientX)
+  }, [])
+
+  const handleAction = useCallback(
+    async (action: 'like' | 'pass') => {
+      if (!current || !canSwipe) return
+      lastSwipeRef.current = { index, id: current.id }
+      trackSwipe(action, current.id)
+      const ok = await performSwipe(current.id, action)
+      if (ok) setIndex((i) => i + 1)
+    },
+    [current, canSwipe, index, performSwipe]
+  )
+
+  const handleDragEnd = useCallback(() => {
+    if (dragStartX == null || !current || !canSwipe) {
+      setDragStartX(null)
+      return
+    }
+    const dx = dragCurrentX - dragStartX
+    setDragStartX(null)
+    if (dx > CARD_SWIPE_THRESHOLD) {
+      handleAction('like')
+    } else if (dx < -CARD_SWIPE_THRESHOLD) {
+      handleAction('pass')
+    }
+  }, [dragStartX, dragCurrentX, current, canSwipe, handleAction])
+
+  function handleUndo() {
+    if (lastSwipeRef.current && lastSwipeRef.current.index === index - 1) {
+      setIndex(lastSwipeRef.current.index)
+      lastSwipeRef.current = null
     }
   }
 
+  const locationLabel = customerCity || 'Phuket'
+  const distanceLabel = current?.distance_km != null ? `${current.distance_km.toFixed(0)}km` : ''
+
   if (currentList.length === 0 && index === 0) {
     return (
-      <div className="swipe-page">
+      <div className="swipe-page swipe-page-full">
         <p className="muted">Loading therapists…</p>
       </div>
     )
@@ -88,7 +117,7 @@ export default function Swipe() {
 
   if (index >= currentList.length) {
     return (
-      <div className="swipe-page">
+      <div className="swipe-page swipe-page-full">
         <p>No more therapists right now.</p>
         <Link to="/">Back to home</Link>
       </div>
@@ -96,76 +125,61 @@ export default function Swipe() {
   }
 
   return (
-    <div className="swipe-page">
-      <div className="swipe-header">
-        <span>{profile?.swipes_remaining ?? 0} swipes left</span>
-        {customerCity && (
+    <div className="swipe-page swipe-page-full">
+      <header className="swipe-header-bar">
+        <button type="button" className="swipe-header-btn" onClick={handleUndo} aria-label="Undo">
+          ↶ Undo
+        </button>
+        <span className="swipe-header-title">
+          {locationLabel} {distanceLabel && `(${distanceLabel})`}
+        </span>
+        <button
+          type="button"
+          className="swipe-header-btn"
+          onClick={() => setFilterOpen(!filterOpen)}
+          aria-label="Filter"
+        >
+          Filter
+        </button>
+      </header>
+
+      {filterOpen && (
+        <div className="swipe-filter-panel">
           <label className="radius-filter">
-            <input
-              type="checkbox"
-              checked={radiusFilter}
-              onChange={(e) => setRadiusFilter(e.target.checked)}
-            />
-            &lt;5km
+            <input type="checkbox" checked={radiusFilter} onChange={(e) => setRadiusFilter(e.target.checked)} />
+            &lt;5km only
           </label>
-        )}
+        </div>
+      )}
+
+      <div className="swipe-stack">
+        {currentList.slice(index, index + 3).map((p, i) => (
+          <div key={p.id} className={`swipe-stack-card stack-${i}`}>
+            <SwipeCard
+              profile={p}
+              isTop={i === 0}
+              dragX={i === 0 ? dragX : 0}
+              onDragStart={handleDragStart}
+              onDragMove={handleDragMove}
+              onDragEnd={handleDragEnd}
+              onSwipeLeft={() => handleAction('pass')}
+              onSwipeRight={() => handleAction('like')}
+              onUnlock={() => setUnlockTherapist(p)}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div className="swipe-footer-meta">
+        <span>{profile?.swipes_remaining ?? 0} swipes left</span>
         {(profile?.swipes_remaining ?? 0) <= 0 && (
           <Link to="/pricing" className="link">Get more</Link>
         )}
       </div>
-      {error && <div className="alert error">{error}</div>}
-      <div className={`card-swipe ${feedback ? `feedback-${feedback}` : ''}`}>
-        <OptimizedImage
-          src={current?.image_url || null}
-          alt={current?.name || 'Therapist'}
-          className="card-image"
-          lazy={true}
-        />
-        <div className="card-body">
-          <h2>{current?.name ?? 'Therapist'}</h2>
-          {current?.location_city && (
-            <p className="card-location">📍 {current.location_city}</p>
-          )}
-          <p>{current?.bio ?? 'No bio'}</p>
-          {current?.share_location && current?.location_lat != null && current?.location_lng != null ? (
-            <MapButton lat={current.location_lat} lng={current.location_lng} label="Open in Maps" />
-          ) : current ? (
-            <p className="location-private">Location private</p>
-          ) : null}
-          {current && (
-            <button
-              type="button"
-              className="btn-unlock-card"
-              onClick={() => setUnlockTherapist(current)}
-            >
-              Unlock profile
-            </button>
-          )}
-        </div>
-        <div className="card-actions">
-          <button
-            type="button"
-            className="btn-pass"
-            onClick={() => handleAction('pass')}
-            disabled={!canSwipe}
-          >
-            Pass
-          </button>
-          <button
-            type="button"
-            className="btn-like"
-            onClick={() => handleAction('like')}
-            disabled={!canSwipe}
-          >
-            Like
-          </button>
-        </div>
-      </div>
+
+      {error && <div className="alert error swipe-alert">{error}</div>}
       {unlockTherapist && (
-        <UnlockModal
-          therapist={unlockTherapist}
-          onClose={() => setUnlockTherapist(null)}
-        />
+        <UnlockModal therapist={unlockTherapist} onClose={() => setUnlockTherapist(null)} />
       )}
     </div>
   )

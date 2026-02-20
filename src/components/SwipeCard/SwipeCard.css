@@ -1,0 +1,154 @@
+.swipe-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  touch-action: none;
+  transition: transform 0.1s ease-out;
+}
+
+.swipe-card-top {
+  cursor: grab;
+  z-index: 10;
+}
+
+.swipe-card-top:active {
+  cursor: grabbing;
+}
+
+.swipe-card-inner {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.swipe-card-images {
+  position: absolute;
+  inset: 0;
+}
+
+.swipe-card-image-wrap {
+  position: absolute;
+  inset: 0;
+  transition: opacity 0.2s ease;
+}
+
+.swipe-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.swipe-card-placeholder {
+  background: var(--surface);
+  min-height: 100%;
+}
+
+.swipe-card-counter {
+  position: absolute;
+  bottom: 3.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  z-index: 2;
+}
+
+.swipe-card-dots {
+  position: absolute;
+  bottom: 1.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.35rem;
+  z-index: 2;
+}
+
+.swipe-card-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.swipe-card-dot.active {
+  background: #fff;
+}
+
+.swipe-card-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 1rem 4rem;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 60%);
+  color: #fff;
+  z-index: 1;
+}
+
+.swipe-card-name {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.swipe-card-meta {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  opacity: 0.95;
+}
+
+.swipe-card-meta .verified {
+  color: #86efac;
+}
+
+.swipe-card-actions {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  z-index: 3;
+}
+
+.swipe-action-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  font-size: 1.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.swipe-action-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.swipe-action-btn.pass:hover { background: rgba(239, 68, 68, 0.3); }
+.swipe-action-btn.like:hover { background: rgba(34, 197, 94, 0.3); }
+.swipe-action-btn.unlock {
+  width: auto;
+  padding: 0 1rem;
+  font-size: 0.9rem;
+}
