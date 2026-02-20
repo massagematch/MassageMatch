@@ -30,6 +30,22 @@
           localStorage.setItem('adsterraCount', String(count + 1));
         }
       })();
+      (function() {
+        var today = new Date().toDateString();
+        var stored = localStorage.getItem('richadsDate');
+        var count = parseInt(localStorage.getItem('richadsCount') || '0', 10);
+        if (stored !== today) { localStorage.setItem('richadsDate', today); localStorage.setItem('richadsCount', '0'); count = 0; }
+        var isPremium = document.cookie.includes('isPremium=true') || localStorage.getItem('isPremium') === 'true';
+        if (!isPremium && count < 2) {
+          var s = document.createElement('script');
+          s.src = 'https://richinfo.co/richpartners/pops/js/richads-pu-ob.js';
+          s.setAttribute('data-pubid', '1002887');
+          s.setAttribute('data-siteid', '388475');
+          s.async = true;
+          document.head.appendChild(s);
+          localStorage.setItem('richadsCount', String(count + 1));
+        }
+      })();
     </script>
   </head>
   <body>
