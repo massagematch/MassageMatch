@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
+import { LocationSelector, type LocationValue } from '@/components/LocationSelector'
 import './Login.css'
 
 export default function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState<'customer' | 'therapist' | 'salong'>('customer')
+  const [location, setLocation] = useState<LocationValue>({ region: '', city: '', area: '' })
   const [showSignUp, setShowSignUp] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -38,10 +40,12 @@ export default function Login() {
       const { data, error: err } = await supabase.auth.signUp({ email, password })
       if (err) throw err
       if (data.user) {
-        // Create profile with role
         await supabase.from('profiles').insert({
           user_id: data.user.id,
           role,
+          location_region: location.region || null,
+          location_city: location.city || null,
+          location_area: location.area || null,
         })
         
         // Send welcome email
@@ -69,14 +73,20 @@ export default function Login() {
         {error && <div className="alert error">{error}</div>}
         {message && <div className="alert success">{message}</div>}
         {showSignUp && (
-          <div className="role-selector">
-            <label>I am a:</label>
-            <select value={role} onChange={(e) => setRole(e.target.value as typeof role)} className="role-select">
-              <option value="customer">Customer</option>
-              <option value="therapist">Therapist</option>
-              <option value="salong">Salong</option>
-            </select>
-          </div>
+          <>
+            <div className="role-selector">
+              <label>I am a:</label>
+              <select value={role} onChange={(e) => setRole(e.target.value as typeof role)} className="role-select">
+                <option value="customer">Customer</option>
+                <option value="therapist">Therapist</option>
+                <option value="salong">Salong</option>
+              </select>
+            </div>
+            <div className="location-signup">
+              <label>Location (optional):</label>
+              <LocationSelector value={location} onChange={setLocation} />
+            </div>
+          </>
         )}
         <form onSubmit={showSignUp ? handleSignUp : handleSubmit}>
           <input

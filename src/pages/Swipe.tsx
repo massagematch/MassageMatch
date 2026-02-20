@@ -1,17 +1,26 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useSwipe } from '@/hooks/useSwipe'
 import { supabase } from '@/lib/supabase'
 import { OptimizedImage } from '@/components/OptimizedImage'
+import { MapButton } from '@/components/MapButton'
+import { UnlockModal } from '@/components/UnlockModal'
 import { trackSwipe } from '@/lib/analytics'
+import { distanceKm } from '@/lib/geo'
 import './Swipe.css'
+
+const RADIUS_KM = 5
 
 type Therapist = {
   id: string
   name: string
   image_url: string | null
   bio: string | null
+  location_city?: string | null
+  location_lat?: number | null
+  location_lng?: number | null
+  share_location?: boolean
 }
 
 export default function Swipe() {
@@ -20,16 +29,38 @@ export default function Swipe() {
   const [therapists, setTherapists] = useState<Therapist[]>([])
   const [index, setIndex] = useState(0)
   const [feedback, setFeedback] = useState<'like' | 'pass' | null>(null)
+  const [radiusFilter, setRadiusFilter] = useState(true)
+  const [unlockTherapist, setUnlockTherapist] = useState<Therapist | null>(null)
+
+  const customerLat = (profile as { location_lat?: number })?.location_lat
+  const customerLng = (profile as { location_lng?: number })?.location_lng
+  const customerCity = (profile as { location_city?: string })?.location_city
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase.from('therapists').select('id, name, image_url, bio').limit(20)
+      let query = supabase
+        .from('therapists')
+        .select('id, name, image_url, bio, location_city, location_lat, location_lng, share_location')
+        .limit(50)
+      if (customerCity) {
+        query = query.eq('location_city', customerCity)
+      }
+      const { data } = await query
       setTherapists((data as Therapist[]) ?? [])
     }
     load()
-  }, [])
+  }, [customerCity])
 
-  const current = therapists[index]
+  const therapistsInRadius = useMemo(() => {
+    if (!radiusFilter || customerLat == null || customerLng == null) return therapists
+    return therapists.filter((t) => {
+      if (!t.share_location || t.location_lat == null || t.location_lng == null) return true
+      return distanceKm(customerLat, customerLng, t.location_lat, t.location_lng) < RADIUS_KM
+    })
+  }, [therapists, radiusFilter, customerLat, customerLng])
+
+  const currentList = radiusFilter && (customerLat != null && customerLng != null) ? therapistsInRadius : therapists
+  const current = currentList[index]
   const canSwipe = (profile?.swipes_remaining ?? 0) > 0 && !loading
 
   async function handleAction(action: 'like' | 'pass') {
@@ -47,7 +78,7 @@ export default function Swipe() {
     }
   }
 
-  if (therapists.length === 0 && index === 0) {
+  if (currentList.length === 0 && index === 0) {
     return (
       <div className="swipe-page">
         <p className="muted">Loading therapists…</p>
@@ -55,7 +86,7 @@ export default function Swipe() {
     )
   }
 
-  if (index >= therapists.length) {
+  if (index >= currentList.length) {
     return (
       <div className="swipe-page">
         <p>No more therapists right now.</p>
@@ -68,8 +99,18 @@ export default function Swipe() {
     <div className="swipe-page">
       <div className="swipe-header">
         <span>{profile?.swipes_remaining ?? 0} swipes left</span>
+        {customerCity && (
+          <label className="radius-filter">
+            <input
+              type="checkbox"
+              checked={radiusFilter}
+              onChange={(e) => setRadiusFilter(e.target.checked)}
+            />
+            &lt;5km
+          </label>
+        )}
         {(profile?.swipes_remaining ?? 0) <= 0 && (
-          <Link to="/premium" className="link">Get more</Link>
+          <Link to="/pricing" className="link">Get more</Link>
         )}
       </div>
       {error && <div className="alert error">{error}</div>}
@@ -82,7 +123,24 @@ export default function Swipe() {
         />
         <div className="card-body">
           <h2>{current?.name ?? 'Therapist'}</h2>
+          {current?.location_city && (
+            <p className="card-location">📍 {current.location_city}</p>
+          )}
           <p>{current?.bio ?? 'No bio'}</p>
+          {current?.share_location && current?.location_lat != null && current?.location_lng != null ? (
+            <MapButton lat={current.location_lat} lng={current.location_lng} label="Open in Maps" />
+          ) : current ? (
+            <p className="location-private">Location private</p>
+          ) : null}
+          {current && (
+            <button
+              type="button"
+              className="btn-unlock-card"
+              onClick={() => setUnlockTherapist(current)}
+            >
+              Unlock profile
+            </button>
+          )}
         </div>
         <div className="card-actions">
           <button
@@ -103,6 +161,12 @@ export default function Swipe() {
           </button>
         </div>
       </div>
+      {unlockTherapist && (
+        <UnlockModal
+          therapist={unlockTherapist}
+          onClose={() => setUnlockTherapist(null)}
+        />
+      )}
     </div>
   )
 }

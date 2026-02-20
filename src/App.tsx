@@ -10,8 +10,10 @@ import Pricing from '@/pages/Pricing'
 import Dashboard from '@/pages/Dashboard'
 import FAQ from '@/pages/FAQ'
 import Profile from '@/pages/Profile'
+import UnlockedProfiles from '@/pages/UnlockedProfiles'
 import { ExitIntentPopup } from '@/components/ExitIntentPopup'
 import { WhatsAppButton } from '@/components/WhatsAppButton'
+import { PWAInstallPrompt } from '@/components/PWAInstallPrompt'
 import { SEOHead } from '@/components/SEOHead'
 import { AdminRoute } from '@/components/AdminRoute'
 import AdminDashboard from '@/pages/admin/AdminDashboard'
@@ -48,6 +50,7 @@ function AppRoutes() {
         <Route path="pricing" element={<Pricing />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="unlocked-profiles" element={<UnlockedProfiles />} />
         <Route path="faq" element={<FAQ />} />
       </Route>
       <Route
@@ -110,6 +113,7 @@ export default function App() {
       <AppRoutes />
       <ExitIntentPopup />
       <WhatsAppButton />
+      <PWAInstallPrompt />
     </AuthProvider>
   )
 }

@@ -27,6 +27,17 @@ Deno.serve(async (req) => {
 
   const supabase = getSupabaseService()
 
+  if (event.type === 'charge.refunded') {
+    const charge = event.data.object as { id?: string }
+    if (charge.id) {
+      await supabase.from('unlocked_profiles').delete().eq('stripe_charge_id', charge.id)
+    }
+    return new Response(JSON.stringify({ received: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as {
       id?: string
@@ -86,13 +97,32 @@ Deno.serve(async (req) => {
         const therapistId = session.metadata?.therapist_id
         const salongId = session.metadata?.salong_id
         if (therapistId || salongId) {
-          const expiresAt = new Date(now.getTime() + 60 * 60 * 1000) // 1h
+          const { data: existingUnlock } = await supabase
+            .from('unlocked_profiles')
+            .select('id')
+            .eq('stripe_payment_id', paymentId)
+            .maybeSingle()
+          if (existingUnlock) break
+          const expiresAt = new Date(now.getTime() + 24 * 60 * 60 * 1000) // 24h
           await supabase.from('unlocked_profiles').insert({
             user_id: userId,
             therapist_id: therapistId || null,
             salong_id: salongId || null,
             expires_at: expiresAt.toISOString(),
+            stripe_payment_id: paymentId,
           })
+          const stripe = await import('https://esm.sh/stripe@14?target=deno')
+          const stripeClient = new stripe.Stripe(stripeSecret!, {
+            apiVersion: '2023-10-16',
+            httpClient: stripe.fetchHttpClient,
+          })
+          const sessionExpanded = await stripeClient.checkout.sessions.retrieve(paymentId, {
+            expand: ['payment_intent'],
+          })
+          const pi = sessionExpanded.payment_intent as { latest_charge?: string } | null
+          if (pi?.latest_charge) {
+            await supabase.from('unlocked_profiles').update({ stripe_charge_id: pi.latest_charge }).eq('stripe_payment_id', paymentId)
+          }
         }
         break
       }

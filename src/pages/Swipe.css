@@ -11,6 +11,46 @@
   margin-bottom: 1rem;
   font-size: 0.9rem;
   color: var(--muted);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.radius-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+}
+
+.radius-filter input {
+  width: auto;
+}
+
+.card-location {
+  margin: 0.25rem 0;
+  font-size: 0.85rem;
+  color: var(--accent);
+}
+
+.location-private {
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.btn-unlock-card {
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-unlock-card:hover {
+  opacity: 0.95;
 }
 
 .swipe-page .link {

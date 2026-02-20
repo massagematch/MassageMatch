@@ -1,0 +1,38 @@
+.location-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.location-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.location-icon {
+  font-size: 1.1rem;
+}
+
+.location-select {
+  width: 100%;
+  padding: 0.65rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+.location-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .location-selector {
+    gap: 0.5rem;
+  }
+}

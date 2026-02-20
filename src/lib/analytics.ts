@@ -63,3 +63,11 @@ export function trackSwipe(action: 'like' | 'pass', therapistId: string) {
 export function trackConversion(type: string, value: number) {
   trackEvent('conversion', { type, value })
 }
+
+export function trackUnlockFunnel(step: string, properties?: Record<string, unknown>) {
+  trackEvent('unlock_funnel', { step, ...properties })
+}
+
+export function trackUnlockRate(therapistId: string, action: 'view' | 'click' | 'payment') {
+  trackEvent('unlock_rate', { therapist_id: therapistId, action })
+}

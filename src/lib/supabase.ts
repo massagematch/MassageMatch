@@ -29,6 +29,12 @@ export type Profile = {
   hotel_discounts: boolean
   social_links?: Record<string, string> | null
   social_validation?: Record<string, { valid: boolean; exists?: boolean; message: string }> | null
+  location_region?: string | null
+  location_city?: string | null
+  location_area?: string | null
+  location_lat?: number | null
+  location_lng?: number | null
+  share_location?: boolean
   created_at: string
   updated_at: string
 }

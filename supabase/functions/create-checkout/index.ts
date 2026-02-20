@@ -44,6 +44,23 @@ Deno.serve(async (req) => {
       })
     }
 
+    if (plan_type === 'unlock-profile') {
+      const { data: profile } = await supabase.from('profiles').select('plan_expires, access_expires').eq('user_id', user.id).single()
+      const planExpires = profile?.plan_expires ? new Date(profile.plan_expires) : null
+      const accessExpires = profile?.access_expires ? new Date(profile.access_expires) : null
+      const hasActivePlan = (planExpires != null && planExpires > new Date()) || (accessExpires != null && accessExpires > new Date())
+      if (!hasActivePlan) {
+        const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+        const { count } = await supabase.from('unlocked_profiles').select('id', { count: 'exact', head: true }).eq('user_id', user.id).gte('unlocked_at', since)
+        if ((count ?? 0) >= 20) {
+          return new Response(JSON.stringify({ error: 'Max 20 unlocks per day for free accounts. Upgrade for more.' }), {
+            status: 429,
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+          })
+        }
+      }
+    }
+
     const stripe = await import('https://esm.sh/stripe@14?target=deno')
     const stripeClient = new stripe.Stripe(stripeSecret, {
       apiVersion: '2023-10-16',

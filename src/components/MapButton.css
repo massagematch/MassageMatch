@@ -1,0 +1,37 @@
+.map-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(59, 130, 246, 0.2);
+  color: #93c5fd;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.map-button:hover {
+  background: rgba(59, 130, 246, 0.3);
+  transform: translateY(-1px);
+}
+
+.map-button-icon {
+  font-size: 1.25rem;
+}
+
+.map-button-label {
+  white-space: nowrap;
+}
+
+@media (max-width: 480px) {
+  .map-button-label {
+    display: none;
+  }
+  .map-button {
+    padding: 0.6rem;
+    border-radius: 50%;
+  }
+}

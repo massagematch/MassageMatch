@@ -11,8 +11,53 @@
 
 .profile-subtitle {
   color: var(--muted);
-  margin: 0 0 2rem;
+  margin: 0 0 1.5rem;
   font-size: 0.9rem;
+}
+
+.profile-section {
+  margin-bottom: 2rem;
+  padding: 1.25rem;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.profile-section-title {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  color: var(--accent);
+}
+
+.share-location-row {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.share-location-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.share-location-label input {
+  width: auto;
+}
+
+.location-private-hint {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.location-display {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+  color: var(--muted);
 }
 
 .social-form {

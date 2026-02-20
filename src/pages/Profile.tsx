@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { useSocialValidation } from '@/hooks/useSocialValidation'
+import { LocationSelector, type LocationValue } from '@/components/LocationSelector'
+import { MapButton } from '@/components/MapButton'
 import { trackEvent } from '@/lib/analytics'
 import './Profile.css'
 
@@ -16,6 +18,10 @@ type SocialLinks = {
 export default function Profile() {
   const { user, profile, refetchProfile } = useAuth()
   const [socialLinks, setSocialLinks] = useState<SocialLinks>({})
+  const [location, setLocation] = useState<LocationValue>({ region: '', city: '', area: '' })
+  const [shareLocation, setShareLocation] = useState(false)
+  const [locationLat, setLocationLat] = useState<number | null>(null)
+  const [locationLng, setLocationLng] = useState<number | null>(null)
   const [saving, setSaving] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const { validateSocial, validationResults, loading: validating } = useSocialValidation()
@@ -23,6 +29,16 @@ export default function Profile() {
   useEffect(() => {
     if (profile?.social_links) {
       setSocialLinks((profile.social_links as SocialLinks) || {})
+    }
+    if (profile) {
+      setLocation({
+        region: (profile as { location_region?: string }).location_region ?? '',
+        city: (profile as { location_city?: string }).location_city ?? '',
+        area: (profile as { location_area?: string }).location_area ?? '',
+      })
+      setShareLocation((profile as { share_location?: boolean }).share_location ?? false)
+      setLocationLat((profile as { location_lat?: number }).location_lat ?? null)
+      setLocationLng((profile as { location_lng?: number }).location_lng ?? null)
     }
   }, [profile])
 
@@ -61,6 +77,12 @@ export default function Profile() {
         .update({
           social_links: socialLinks,
           social_validation: validationResults,
+          location_region: location.region || null,
+          location_city: location.city || null,
+          location_area: location.area || null,
+          location_lat: locationLat,
+          location_lng: locationLng,
+          share_location: shareLocation,
           updated_at: new Date().toISOString(),
         })
         .eq('user_id', user.id)
@@ -92,19 +114,63 @@ export default function Profile() {
       setSaving(false)
       setTimeout(() => setSaveStatus('idle'), 3000)
     }
-  }, [user?.id, socialLinks, validationResults, profile, refetchProfile])
+  }, [user?.id, socialLinks, validationResults, profile, refetchProfile, location, locationLat, locationLng, shareLocation])
 
-  const canSave = Object.values(socialLinks).some((v) => v?.trim()) && 
+  const canSave =
+    (Object.values(socialLinks).some((v) => v?.trim()) || location.region) &&
     Object.entries(socialLinks).every(([platform, value]) => {
-      if (!value?.trim()) return true // Empty is OK
+      if (!value?.trim()) return true
       const result = validationResults[platform as keyof SocialLinks]
       return !result || result.valid
     })
 
+  const handleShareLocationToggle = () => {
+    if (!shareLocation && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setLocationLat(pos.coords.latitude)
+          setLocationLng(pos.coords.longitude)
+          setShareLocation(true)
+        },
+        () => setShareLocation(true)
+      )
+    } else {
+      setShareLocation(!shareLocation)
+    }
+  }
+
   return (
     <div className="profile-page">
       <h1>Your Profile</h1>
-      <p className="profile-subtitle">Add your social media contacts so customers can reach you</p>
+      <p className="profile-subtitle">Add your location and social contacts</p>
+
+      <section className="profile-section">
+        <h2 className="profile-section-title">📍 Location (Thailand)</h2>
+        <LocationSelector value={location} onChange={setLocation} />
+        {(profile?.role === 'therapist' || profile?.role === 'salong') && (
+          <div className="share-location-row">
+            <label className="share-location-label">
+              <input
+                type="checkbox"
+                checked={shareLocation}
+                onChange={handleShareLocationToggle}
+              />
+              Share location with customers (show on map)
+            </label>
+            {shareLocation && locationLat != null && locationLng != null && (
+              <MapButton lat={locationLat} lng={locationLng} label="Open in Maps" />
+            )}
+            {shareLocation && (locationLat == null || locationLng == null) && (
+              <span className="location-private-hint">Allow browser location to set coordinates</span>
+            )}
+          </div>
+        )}
+        {profile?.role === 'customer' && location.region && (
+          <p className="location-display">
+            📍 {location.region} → {location.city} {location.area && `→ ${location.area}`}
+          </p>
+        )}
+      </section>
 
       <div className="social-form">
         <div className="social-field-group">

@@ -28,6 +28,7 @@ export default function Layout() {
             </>
           )}
           <span className="email">{user?.email}</span>
+          <Link to="/unlocked-profiles" className="btn-outline">Unlocked</Link>
           <Link to="/profile" className="btn-outline">Profile</Link>
           <button type="button" onClick={() => signOut()} className="btn-outline">
             Sign out

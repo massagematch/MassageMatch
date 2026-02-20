@@ -78,6 +78,17 @@
   font: inherit;
 }
 
+.location-signup {
+  margin-bottom: 1rem;
+}
+
+.location-signup label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
 .btn-secondary {
   width: 100%;
   margin-top: 0.75rem;
