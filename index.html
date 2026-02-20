@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#0f172a" />
     <meta name="description" content="MassageMatch Thailand - Connect with trusted therapists" />
+    <meta name="hilltopads-verification" content="55b9384f668c04d9a74c" />
     <meta property="og:title" content="MassageMatch Thailand" />
     <meta property="og:description" content="Connect with trusted therapists" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -14,6 +15,22 @@
     <link rel="alternate" hreflang="th" href="https://massagematch-thailand.com/th/" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <title>MassageMatch Thailand</title>
+    <script>
+      (function() {
+        var today = new Date().toDateString();
+        var stored = localStorage.getItem('adsterraDate');
+        var count = parseInt(localStorage.getItem('adsterraCount') || '0', 10);
+        if (stored !== today) { localStorage.setItem('adsterraDate', today); localStorage.setItem('adsterraCount', '0'); count = 0; }
+        var isPremium = document.cookie.includes('isPremium=true') || localStorage.getItem('isPremium') === 'true';
+        if (!isPremium && count < 2) {
+          var s = document.createElement('script');
+          s.src = 'https://pl28754770.effectivegatecpm.com/83/ad/d3/83add3235d5d4204274339ec7c86624f.js';
+          s.async = true;
+          document.head.appendChild(s);
+          localStorage.setItem('adsterraCount', String(count + 1));
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

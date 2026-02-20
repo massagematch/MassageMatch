@@ -77,6 +77,42 @@
   pointer-events: none;
 }
 
+.swipe-paywall-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 16px;
+  cursor: pointer;
+  padding: 1rem;
+}
+
+.swipe-paywall-text {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.swipe-paywall-btn {
+  padding: 0.6rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #10b981, #14b8a6);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.swipe-paywall-btn:hover {
+  opacity: 0.95;
+}
+
 .swipe-footer-meta {
   padding: 0.5rem 1rem;
   font-size: 0.85rem;

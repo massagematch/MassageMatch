@@ -5,6 +5,7 @@ import { useSwipe } from '@/hooks/useSwipe'
 import { supabase } from '@/lib/supabase'
 import { SwipeCard, type SwipeCardProfile } from '@/components/SwipeCard'
 import { UnlockModal } from '@/components/UnlockModal'
+import { PaywallModal } from '@/components/PaywallModal'
 import { trackSwipe } from '@/lib/analytics'
 import { distanceKm } from '@/lib/geo'
 import './Swipe.css'
@@ -19,6 +20,7 @@ export default function Swipe() {
   const [index, setIndex] = useState(0)
   const [radiusFilter, setRadiusFilter] = useState(true)
   const [unlockTherapist, setUnlockTherapist] = useState<SwipeCardProfile | null>(null)
+  const [showPaywall, setShowPaywall] = useState(false)
   const [filterOpen, setFilterOpen] = useState(false)
   const [dragStartX, setDragStartX] = useState<number | null>(null)
   const [dragCurrentX, setDragCurrentX] = useState(0)
@@ -74,7 +76,11 @@ export default function Swipe() {
 
   const handleAction = useCallback(
     async (action: 'like' | 'pass') => {
-      if (!current || !canSwipe) return
+      if (!current) return
+      if (!canSwipe) {
+        setShowPaywall(true)
+        return
+      }
       lastSwipeRef.current = { index, id: current.id }
       trackSwipe(action, current.id)
       const ok = await performSwipe(current.id, action)
@@ -168,6 +174,14 @@ export default function Swipe() {
             />
           </div>
         ))}
+        {!canSwipe && current && (
+          <div className="swipe-paywall-overlay" onClick={() => setShowPaywall(true)}>
+            <p className="swipe-paywall-text">Out of swipes</p>
+            <button type="button" className="swipe-paywall-btn" onClick={(e) => { e.stopPropagation(); setShowPaywall(true); }}>
+              Upgrade to continue
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="swipe-footer-meta">
@@ -181,6 +195,7 @@ export default function Swipe() {
       {unlockTherapist && (
         <UnlockModal therapist={unlockTherapist} onClose={() => setUnlockTherapist(null)} />
       )}
+      <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} mode="premium" />
     </div>
   )
 }

@@ -59,6 +59,84 @@
   color: var(--muted);
 }
 
+.profile-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.profile-tabs button {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.profile-tabs button.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+.profile-bio-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.9rem;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.profile-prices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.profile-prices label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.profile-prices label span {
+  min-width: 4rem;
+}
+
+.profile-prices input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  width: 100px;
+}
+
+.profile-services {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.profile-service-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.profile-service-check input {
+  width: auto;
+}
+
 .share-location-row {
   margin-top: 1rem;
   display: flex;

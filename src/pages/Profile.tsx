@@ -25,8 +25,15 @@ export default function Profile() {
   const [saving, setSaving] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [verifying, setVerifying] = useState(false)
+  const [profileTab, setProfileTab] = useState<'images' | 'location' | 'bio' | 'prices' | 'services'>('location')
+  const [bio, setBio] = useState('')
+  const [services, setServices] = useState<string[]>([])
+  const [thb60min, setThb60min] = useState<string>('')
+  const [thb90min, setThb90min] = useState<string>('')
   const { validateSocial, validationResults, loading: validating } = useSocialValidation()
   const verifiedPhoto = (profile as { verified_photo?: boolean })?.verified_photo ?? false
+
+  const SERVICE_OPTIONS = ['Swedish massage', 'Thai massage', 'Hot stone', 'Aromatherapy', 'Deep tissue', 'Sports massage']
 
   useEffect(() => {
     if (profile?.social_links) {
@@ -41,6 +48,11 @@ export default function Profile() {
       setShareLocation((profile as { share_location?: boolean }).share_location ?? false)
       setLocationLat((profile as { location_lat?: number }).location_lat ?? null)
       setLocationLng((profile as { location_lng?: number }).location_lng ?? null)
+      setBio((profile as { bio?: string }).bio ?? '')
+      setServices(Array.isArray((profile as { services?: string[] }).services) ? (profile as { services?: string[] }).services! : [])
+      const p = (profile as { prices?: { thb60min?: number; thb90min?: number } }).prices
+      setThb60min(p?.thb60min != null ? String(p.thb60min) : '')
+      setThb90min(p?.thb90min != null ? String(p.thb90min) : '')
     }
   }, [profile])
 
@@ -85,6 +97,9 @@ export default function Profile() {
           location_lat: locationLat,
           location_lng: locationLng,
           share_location: shareLocation,
+          bio: bio.trim() || null,
+          services: services.length ? services : null,
+          prices: { thb60min: thb60min ? parseInt(thb60min, 10) : null, thb90min: thb90min ? parseInt(thb90min, 10) : null },
           updated_at: new Date().toISOString(),
         })
         .eq('user_id', user.id)
@@ -96,6 +111,13 @@ export default function Profile() {
       } else {
         setSaveStatus('success')
         trackEvent('profile_save_success', { platforms: Object.keys(socialLinks) })
+        if (profile?.role === 'therapist') {
+          await supabase.from('therapists').update({
+            bio: bio.trim() || null,
+            services: services.length ? services : null,
+            prices: { thb60min: thb60min ? parseInt(thb60min, 10) : null, thb90min: thb90min ? parseInt(thb90min, 10) : null },
+          }).eq('id', user.id)
+        }
         await refetchProfile()
         
         // Trigger welcome email if profile just completed
@@ -116,10 +138,10 @@ export default function Profile() {
       setSaving(false)
       setTimeout(() => setSaveStatus('idle'), 3000)
     }
-  }, [user?.id, socialLinks, validationResults, profile, refetchProfile, location, locationLat, locationLng, shareLocation])
+  }, [user?.id, socialLinks, validationResults, profile, refetchProfile, location, locationLat, locationLng, shareLocation, bio, services, thb60min, thb90min])
 
   const canSave =
-    (Object.values(socialLinks).some((v) => v?.trim()) || location.region) &&
+    (Object.values(socialLinks).some((v) => v?.trim()) || location.region || bio.trim() || services.length > 0 || thb60min || thb90min) &&
     Object.entries(socialLinks).every(([platform, value]) => {
       if (!value?.trim()) return true
       const result = validationResults[platform as keyof SocialLinks]
@@ -162,11 +184,24 @@ export default function Profile() {
     }
   }
 
+  const toggleService = (s: string) => {
+    setServices((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]))
+  }
+
   return (
     <div className="profile-page">
       <h1>Your Profile</h1>
-      <p className="profile-subtitle">Add your location and social contacts</p>
+      <p className="profile-subtitle">Edit your profile</p>
 
+      <div className="profile-tabs">
+        <button type="button" className={profileTab === 'images' ? 'active' : ''} onClick={() => setProfileTab('images')}>📸 Bilder</button>
+        <button type="button" className={profileTab === 'location' ? 'active' : ''} onClick={() => setProfileTab('location')}>📍 Location</button>
+        <button type="button" className={profileTab === 'bio' ? 'active' : ''} onClick={() => setProfileTab('bio')}>✏️ Bio</button>
+        <button type="button" className={profileTab === 'prices' ? 'active' : ''} onClick={() => setProfileTab('prices')}>💰 Priser</button>
+        <button type="button" className={profileTab === 'services' ? 'active' : ''} onClick={() => setProfileTab('services')}>⭐ Services</button>
+      </div>
+
+      {profileTab === 'images' && (
       <section className="profile-section profile-verify">
         <h2 className="profile-section-title">Photo verification</h2>
         {verifiedPhoto ? (
@@ -181,7 +216,9 @@ export default function Profile() {
           </div>
         )}
       </section>
+      )}
 
+      {profileTab === 'location' && (
       <section className="profile-section">
         <h2 className="profile-section-title">📍 Location (Thailand)</h2>
         <LocationSelector value={location} onChange={setLocation} />
@@ -209,6 +246,50 @@ export default function Profile() {
           </p>
         )}
       </section>
+      )}
+
+      {profileTab === 'bio' && (
+      <section className="profile-section">
+        <h2 className="profile-section-title">✏️ Bio</h2>
+        <textarea
+          className="profile-bio-input"
+          placeholder="Write a short bio..."
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+          rows={4}
+        />
+      </section>
+      )}
+
+      {profileTab === 'prices' && (
+      <section className="profile-section">
+        <h2 className="profile-section-title">💰 Priser (THB)</h2>
+        <div className="profile-prices">
+          <label>
+            <span>60 min</span>
+            <input type="number" min={0} placeholder="500" value={thb60min} onChange={(e) => setThb60min(e.target.value)} />
+          </label>
+          <label>
+            <span>90 min</span>
+            <input type="number" min={0} placeholder="700" value={thb90min} onChange={(e) => setThb90min(e.target.value)} />
+          </label>
+        </div>
+      </section>
+      )}
+
+      {profileTab === 'services' && (
+      <section className="profile-section">
+        <h2 className="profile-section-title">⭐ Services</h2>
+        <div className="profile-services">
+          {SERVICE_OPTIONS.map((s) => (
+            <label key={s} className="profile-service-check">
+              <input type="checkbox" checked={services.includes(s)} onChange={() => toggleService(s)} />
+              {s}
+            </label>
+          ))}
+        </div>
+      </section>
+      )}
 
       <div className="social-form">
         <div className="social-field-group">

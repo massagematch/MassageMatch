@@ -14,6 +14,7 @@ import UnlockedProfiles from '@/pages/UnlockedProfiles'
 import { ExitIntentPopup } from '@/components/ExitIntentPopup'
 import { WhatsAppButton } from '@/components/WhatsAppButton'
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt'
+import { ChatBubble } from '@/components/ChatBubble'
 import { SEOHead } from '@/components/SEOHead'
 import { AdminRoute } from '@/components/AdminRoute'
 import AdminDashboard from '@/pages/admin/AdminDashboard'
@@ -114,6 +115,7 @@ export default function App() {
       <ExitIntentPopup />
       <WhatsAppButton />
       <PWAInstallPrompt />
+      <ChatBubble />
     </AuthProvider>
   )
 }

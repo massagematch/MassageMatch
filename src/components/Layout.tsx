@@ -13,6 +13,11 @@ export default function Layout() {
 
   return (
     <div className="layout">
+      {profile && !(profile.plan_expires ? new Date(profile.plan_expires) > new Date() : false) && (
+        <Link to="/pricing" className="ad-cta-banner">
+          Ingen reklam för 99 THB! →
+        </Link>
+      )}
       <header className="header">
         <span className="brand">MassageMatch Thailand</span>
         <div className="header-right">

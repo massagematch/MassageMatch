@@ -49,3 +49,89 @@
   font-size: 0.85rem;
   color: var(--muted);
 }
+
+.home-top-section {
+  margin-bottom: 1.5rem;
+}
+
+.home-top-title {
+  font-size: 1.1rem;
+  margin: 0 0 1rem;
+}
+
+.home-top-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.home-top-card {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3/4;
+  border-radius: 16px;
+  overflow: hidden;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: var(--surface);
+  display: block;
+  text-align: left;
+}
+
+.home-top-card:hover .home-top-card-blur {
+  filter: blur(8px);
+}
+
+.home-top-card-blur {
+  position: absolute;
+  inset: 0;
+  filter: blur(20px);
+  transition: filter 0.3s ease;
+}
+
+.home-top-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-top-card-teaser {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+  color: #fff;
+}
+
+.home-top-card-name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.home-top-card-meta {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  opacity: 0.9;
+}
+
+.home-top-card-meta .verified {
+  color: #86efac;
+}
+
+.home-top-card-available {
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #86efac;
+}
+
+.home-top-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}

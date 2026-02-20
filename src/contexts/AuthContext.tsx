@@ -18,6 +18,19 @@ type AuthState = {
 const AuthContext = createContext<AuthState | null>(null)
 
 const STORAGE_KEY = 'mm_profile_fallback'
+const PREMIUM_KEY = 'isPremium'
+
+function syncPremiumStorage(profile: Profile | null) {
+  if (!profile) {
+    localStorage.setItem(PREMIUM_KEY, 'false')
+    if (typeof document !== 'undefined') document.cookie = 'isPremium=; path=/; max-age=0'
+    return
+  }
+  const hasPlan = profile.plan_expires ? new Date(profile.plan_expires) > new Date() : false
+  const val = hasPlan ? 'true' : 'false'
+  localStorage.setItem(PREMIUM_KEY, val)
+  if (typeof document !== 'undefined') document.cookie = 'isPremium=' + val + '; path=/; max-age=86400'
+}
 
 function getFallbackProfile(): Profile | null {
   try {
@@ -53,8 +66,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
     if (data) {
-      setProfile(data as Profile)
-      setFallbackProfile(data as Profile)
+      const p = data as Profile
+      setProfile(p)
+      setFallbackProfile(p)
+      syncPremiumStorage(p)
     } else {
       const { data: inserted, error: insertErr } = await supabase
         .from('profiles')
@@ -65,8 +80,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setError(insertErr.message)
         return
       }
-      setProfile(inserted as Profile)
-      setFallbackProfile(inserted as Profile)
+      const p = inserted as Profile
+      setProfile(p)
+      setFallbackProfile(p)
+      syncPremiumStorage(p)
     }
   }, [])
 
@@ -90,8 +107,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           },
           (payload) => {
             if (payload.new && typeof payload.new === 'object' && 'user_id' in payload.new) {
-              setProfile(payload.new as Profile)
-              setFallbackProfile(payload.new as Profile)
+              const p = payload.new as Profile
+              setProfile(p)
+              setFallbackProfile(p)
+              syncPremiumStorage(p)
             }
           }
         )
@@ -122,6 +141,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (event === 'SIGNED_OUT') {
         setProfile(null)
         setFallbackProfile(null)
+        syncPremiumStorage(null)
         channelRef.current?.unsubscribe()
         channelRef.current = null
         setLoading(false)

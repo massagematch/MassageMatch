@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
+import { useUniversalBuy } from '@/hooks/useUniversalBuy'
 import { getVariant } from '@/lib/abTesting'
 import { trackUnlockFunnel, trackUnlockRate } from '@/lib/analytics'
 import './UnlockModal.css'
@@ -19,6 +20,7 @@ type Props = {
 
 export function UnlockModal({ therapist, isRepeat, onClose }: Props) {
   const { user } = useAuth()
+  const { buyNow } = useUniversalBuy()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [buttonCopy, setButtonCopy] = useState<'Unlock Now' | 'See Contacts'>('Unlock Now')
@@ -44,23 +46,14 @@ export function UnlockModal({ therapist, isRepeat, onClose }: Props) {
     trackUnlockRate(therapist.id, 'click')
     trackUnlockFunnel('checkout_clicked', { therapist_id: therapist.id, button_copy: buttonCopy })
     try {
-      const { data: { session } } = await supabase.auth.getSession()
-      const { data, error: fnErr } = await supabase.functions.invoke('create-checkout', {
-        body: {
-          price_id: UNLOCK_PRICE_ID,
-          plan_type: 'unlock-profile',
-          therapist_id: therapist.id,
-          success_url: `${window.location.origin}/unlocked-profiles?success=1`,
-          cancel_url: window.location.href,
-        },
-        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
+      trackUnlockFunnel('redirected', { therapist_id: therapist.id })
+      await buyNow({
+        price_id: UNLOCK_PRICE_ID,
+        plan_type: 'unlock-profile',
+        therapist_id: therapist.id,
+        success_url: `${window.location.origin}/unlocked-profiles?success=1`,
+        cancel_url: window.location.href,
       })
-      if (fnErr) throw fnErr
-      if (data?.url) {
-        trackUnlockFunnel('redirected', { therapist_id: therapist.id })
-        window.location.href = data.url
-      } else if (data?.error) throw new Error(data.error)
-      else setError('No checkout URL')
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Checkout failed')
       trackUnlockFunnel('error', { therapist_id: therapist.id, error: String(e) })
