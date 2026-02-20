@@ -1,0 +1,117 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { supabase } from '@/lib/supabase'
+import './Login.css'
+
+export default function Login() {
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [role, setRole] = useState<'customer' | 'therapist' | 'salong'>('customer')
+  const [showSignUp, setShowSignUp] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [message, setMessage] = useState<string | null>(null)
+  const navigate = useNavigate()
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+    setMessage(null)
+    setLoading(true)
+    try {
+      const { error: err } = await supabase.auth.signInWithPassword({ email, password })
+      if (err) throw err
+      navigate('/', { replace: true })
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Login failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleSignUp(e: React.FormEvent) {
+    e.preventDefault()
+    setError(null)
+    setMessage(null)
+    setLoading(true)
+    try {
+      const { data, error: err } = await supabase.auth.signUp({ email, password })
+      if (err) throw err
+      if (data.user) {
+        // Create profile with role
+        await supabase.from('profiles').insert({
+          user_id: data.user.id,
+          role,
+        })
+        
+        // Send welcome email
+        try {
+          await supabase.functions.invoke('send-welcome', {
+            body: { user_id: data.user.id, trigger: 'signup' },
+          })
+        } catch (e) {
+          console.error('Welcome email failed:', e)
+        }
+      }
+      setMessage('Check your email to confirm sign up.')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Sign up failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="login-page">
+      <div className="login-card">
+        <h1>MassageMatch Thailand</h1>
+        <p className="subtitle">Connect with trusted therapists</p>
+        {error && <div className="alert error">{error}</div>}
+        {message && <div className="alert success">{message}</div>}
+        {showSignUp && (
+          <div className="role-selector">
+            <label>I am a:</label>
+            <select value={role} onChange={(e) => setRole(e.target.value as typeof role)} className="role-select">
+              <option value="customer">Customer</option>
+              <option value="therapist">Therapist</option>
+              <option value="salong">Salong</option>
+            </select>
+          </div>
+        )}
+        <form onSubmit={showSignUp ? handleSignUp : handleSubmit}>
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            autoComplete={showSignUp ? 'new-password' : 'current-password'}
+          />
+          <button type="submit" disabled={loading}>
+            {loading ? '…' : showSignUp ? 'Sign up' : 'Sign in'}
+          </button>
+        </form>
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={() => {
+            setShowSignUp(!showSignUp)
+            setError(null)
+            setMessage(null)
+          }}
+          disabled={loading}
+        >
+          {showSignUp ? 'Already have an account? Sign in' : 'Create account'}
+        </button>
+      </div>
+    </div>
+  )
+}

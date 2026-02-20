@@ -1,0 +1,102 @@
+.exit-intent-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 1rem;
+}
+
+.exit-intent-popup {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  border: 2px solid var(--accent);
+}
+
+.exit-intent-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.exit-intent-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.exit-intent-popup h2 {
+  margin: 0 0 1rem;
+  font-size: 1.75rem;
+  text-align: center;
+}
+
+.exit-intent-discount {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0 0 0.5rem;
+}
+
+.exit-intent-text {
+  text-align: center;
+  color: var(--muted);
+  margin: 0 0 1.5rem;
+  line-height: 1.5;
+}
+
+.exit-intent-text strong {
+  color: var(--text);
+  font-size: 1.25rem;
+}
+
+.exit-intent-cta {
+  width: 100%;
+  padding: 1rem;
+  background: var(--accent);
+  color: var(--bg);
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  margin-bottom: 0.75rem;
+}
+
+.exit-intent-cta:hover {
+  opacity: 0.9;
+}
+
+.exit-intent-dismiss {
+  width: 100%;
+  padding: 0.5rem;
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.exit-intent-dismiss:hover {
+  color: var(--text);
+}

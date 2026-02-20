@@ -1,0 +1,99 @@
+.swipe-page {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: 0.5rem 0;
+}
+
+.swipe-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.swipe-page .link {
+  color: var(--accent);
+}
+
+.card-swipe {
+  background: var(--surface);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.2s;
+}
+
+.card-swipe.feedback-like {
+  transform: translateX(8px);
+  box-shadow: 0 0 0 2px var(--success);
+}
+
+.card-swipe.feedback-pass {
+  transform: translateX(-8px);
+  box-shadow: 0 0 0 2px var(--muted);
+}
+
+.card-image {
+  height: 220px;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+.card-body h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+.card-body p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.card-actions {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  justify-content: center;
+}
+
+.btn-pass,
+.btn-like {
+  padding: 0.6rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+}
+
+.btn-pass {
+  background: var(--surface);
+  border: 1px solid var(--muted);
+  color: var(--text);
+}
+
+.btn-like {
+  background: var(--success);
+  color: var(--bg);
+}
+
+.btn-pass:disabled,
+.btn-like:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+  .card-image {
+    height: 180px;
+  }
+}

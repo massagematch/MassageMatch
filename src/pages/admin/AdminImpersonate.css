@@ -1,0 +1,75 @@
+.admin-impersonate {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.impersonate-banner {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.banner-icon {
+  font-size: 1.25rem;
+}
+
+.banner-text {
+  font-size: 0.9rem;
+}
+
+.banner-text strong {
+  font-weight: 700;
+}
+
+.btn-exit-impersonate {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.btn-exit-impersonate:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.impersonate-content {
+  flex: 1;
+  overflow: auto;
+}
+
+.admin-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 1rem;
+}
+
+@media (max-width: 768px) {
+  .impersonate-banner {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+  
+  .banner-text {
+    font-size: 0.8rem;
+  }
+}

@@ -1,0 +1,14 @@
+.access-timer {
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+}
+
+.access-timer.active {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--success);
+}
+
+.access-timer.expired {
+  color: var(--muted);
+}
