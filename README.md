@@ -65,6 +65,37 @@ supabase functions deploy chat-query
 
 ---
 
+## 💳 Stripe Checkout (Mobile & Lovable)
+
+All payment clicks must send the user to Stripe Checkout and work reliably on phone (iOS Safari, Android, PWA).
+
+**Entry points (all use `create-checkout` Edge Function):**
+- **Pricing** – every plan button (Unlock Profile, 12h Unlimited, therapist/salong plans)
+- **Premium** – “Buy 12h Premium”
+- **UnlockModal** – “Unlock Now” / “See Contacts” (single-profile unlock)
+- **PaywallModal** – “Unlimited 12h ฿199”
+- **ExitIntentPopup** – “Claim 20% Discount”
+- **UnlockedProfiles** – “Extend” on expired unlocks
+
+**Implementation (already in code):**
+- **Redirect:** `window.location.assign(data.url)` – no popup; works on iOS/Android. Popups are blocked on mobile.
+- **Loading:** Every payment button shows “Redirecting…” and is **disabled** while the request runs (prevents double-tap).
+- **Errors:** Buttons show error message if `create-checkout` fails or returns no URL; user can retry.
+- **URLs:** `success_url` and `cancel_url` are absolute (`window.location.origin + path`). Required by Stripe.
+
+**Lovable / production checklist:**
+1. **Deploy `create-checkout`** – Supabase Edge Functions → deploy `create-checkout`; set secret `STRIPE_SECRET_KEY`.
+2. **Set env vars** – In Lovable (or Vercel), set every Stripe Price ID you use:
+   - `VITE_STRIPE_UNLOCK_PROFILE`, `VITE_STRIPE_UNLIMITED_12H`, `VITE_STRIPE_PREMIUM_PRICE_ID`
+   - `VITE_STRIPE_THERAPIST_PREMIUM_1M`, `VITE_STRIPE_THERAPIST_PREMIUM_3M`, `VITE_STRIPE_BOOST_SWIPE_6H`, `VITE_STRIPE_BOOST_SEARCH_24H`
+   - `VITE_STRIPE_SALONG_PREMIUM_1M`, `VITE_STRIPE_SALONG_TOPLIST_7D`
+3. **Cold start:** First request to `create-checkout` on a cold Edge Function may take 5–15 seconds. Button shows “Redirecting…” until then; do not navigate away.
+4. **Stripe Dashboard:** Ensure the price IDs exist and are in **live** mode if you use live keys.
+
+If checkout “just loads” on phone: verify (1) `create-checkout` is deployed and (2) all required `VITE_STRIPE_*` are set in the deployed app.
+
+---
+
 ## 🎯 Frontend Features (Lovable / GitHub)
 
 - **Auth:** Login, persistent profile, `isPremium` synced to `localStorage` + cookie for ad scripts.

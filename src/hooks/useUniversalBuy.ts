@@ -30,7 +30,8 @@ export function useUniversalBuy() {
       if (error) throw error
       if (data?.error) throw new Error(data.error)
       if (data?.url) {
-        window.location.href = data.url
+        // assign() is more reliable than .href for redirect from async on mobile (iOS Safari, PWA)
+        window.location.assign(data.url)
         return
       }
       throw new Error('No checkout URL returned')

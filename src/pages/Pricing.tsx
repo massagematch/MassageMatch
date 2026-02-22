@@ -64,8 +64,10 @@ export default function Pricing() {
       if (fnErr) throw fnErr
       if (data?.url) {
         trackStripeFunnel('checkout_redirected', { plan_type: planType })
-        window.location.href = data.url
-      } else if (data?.error) throw new Error(data.error)
+        window.location.assign(data.url)
+        return
+      }
+      if (data?.error) throw new Error(data.error)
       else setError('No checkout URL returned')
     } catch (e: unknown) {
       trackStripeFunnel('checkout_error', { plan_type: planType, error: e instanceof Error ? e.message : 'Unknown' })
@@ -101,7 +103,7 @@ export default function Pricing() {
                 onClick={() => handleCheckout('unlock-profile', PRICE_IDS.customer.unlockProfile)}
                 disabled={loading === 'unlock-profile' || !PRICE_IDS.customer.unlockProfile}
               >
-                {loading === 'unlock-profile' ? '…' : 'Buy Now'}
+                {loading === 'unlock-profile' ? 'Redirecting…' : 'Buy Now'}
               </button>
             </div>
             <div className="plan-card featured">
@@ -116,7 +118,7 @@ export default function Pricing() {
                 onClick={() => handleCheckout('12h-unlimited', PRICE_IDS.customer.unlimited12h)}
                 disabled={loading === '12h-unlimited' || !PRICE_IDS.customer.unlimited12h}
               >
-                {loading === '12h-unlimited' ? '…' : 'Buy Now'}
+                {loading === '12h-unlimited' ? 'Redirecting…' : 'Buy Now'}
               </button>
             </div>
           </div>
@@ -140,7 +142,7 @@ export default function Pricing() {
                 onClick={() => handleCheckout('therapist-premium-1m', PRICE_IDS.therapist.premium1m)}
                 disabled={loading === 'therapist-premium-1m' || !PRICE_IDS.therapist.premium1m}
               >
-                {loading === 'therapist-premium-1m' ? '…' : 'Buy Now'}
+                {loading === 'therapist-premium-1m' ? 'Redirecting…' : 'Buy Now'}
               </button>
             </div>
             <div className="plan-card">
@@ -155,7 +157,7 @@ export default function Pricing() {
                 onClick={() => handleCheckout('therapist-premium-3m', PRICE_IDS.therapist.premium3m)}
                 disabled={loading === 'therapist-premium-3m' || !PRICE_IDS.therapist.premium3m}
               >
-                {loading === 'therapist-premium-3m' ? '…' : 'Buy Now'}
+                {loading === 'therapist-premium-3m' ? 'Redirecting…' : 'Buy Now'}
               </button>
             </div>
             <div className="plan-card">
@@ -170,7 +172,7 @@ export default function Pricing() {
                 onClick={() => handleCheckout('boost-swipe-6h', PRICE_IDS.therapist.boostSwipe6h)}
                 disabled={loading === 'boost-swipe-6h' || !PRICE_IDS.therapist.boostSwipe6h}
               >
-                {loading === 'boost-swipe-6h' ? '…' : 'Buy Now'}
+                {loading === 'boost-swipe-6h' ? 'Redirecting…' : 'Buy Now'}
               </button>
             </div>
             <div className="plan-card">
@@ -185,7 +187,7 @@ export default function Pricing() {
                 onClick={() => handleCheckout('boost-search-24h', PRICE_IDS.therapist.boostSearch24h)}
                 disabled={loading === 'boost-search-24h' || !PRICE_IDS.therapist.boostSearch24h}
               >
-                {loading === 'boost-search-24h' ? '…' : 'Buy Now'}
+                {loading === 'boost-search-24h' ? 'Redirecting…' : 'Buy Now'}
               </button>
             </div>
           </div>
@@ -208,7 +210,7 @@ export default function Pricing() {
                 onClick={() => handleCheckout('salong-premium-1m', PRICE_IDS.salong.premium1m)}
                 disabled={loading === 'salong-premium-1m' || !PRICE_IDS.salong.premium1m}
               >
-                {loading === 'salong-premium-1m' ? '…' : 'Buy Now'}
+                {loading === 'salong-premium-1m' ? 'Redirecting…' : 'Buy Now'}
               </button>
             </div>
             <div className="plan-card featured">
@@ -223,7 +225,7 @@ export default function Pricing() {
                 onClick={() => handleCheckout('salong-toplist-7d', PRICE_IDS.salong.toplist7d)}
                 disabled={loading === 'salong-toplist-7d' || !PRICE_IDS.salong.toplist7d}
               >
-                {loading === 'salong-toplist-7d' ? '…' : 'Buy Now'}
+                {loading === 'salong-toplist-7d' ? 'Redirecting…' : 'Buy Now'}
               </button>
             </div>
           </div>

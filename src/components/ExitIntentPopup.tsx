@@ -27,12 +27,22 @@ export function ExitIntentPopup() {
     return () => document.removeEventListener('mouseleave', handleMouseLeave)
   }, [show, dismissed, user, profile])
 
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
   async function handleClaimDiscount() {
+    const priceId = import.meta.env.VITE_STRIPE_UNLIMITED_12H
+    if (!priceId || !user) {
+      setError('Checkout not configured')
+      return
+    }
+    setError(null)
+    setLoading(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
-      const { data, error } = await supabase.functions.invoke('create-checkout', {
+      const { data, error: fnErr } = await supabase.functions.invoke('create-checkout', {
         body: {
-          price_id: import.meta.env.VITE_STRIPE_UNLIMITED_12H,
+          price_id: priceId,
           plan_type: '12h-unlimited',
           success_url: `${window.location.origin}/pricing?discount=${DISCOUNT_CODE}`,
           cancel_url: `${window.location.origin}/pricing`,
@@ -41,10 +51,17 @@ export function ExitIntentPopup() {
           ? { Authorization: `Bearer ${session.access_token}` }
           : undefined,
       })
-      if (error) throw error
-      if (data?.url) window.location.href = data.url
+      if (fnErr) throw fnErr
+      if (data?.error) throw new Error(data.error)
+      if (data?.url) {
+        window.location.assign(data.url)
+        return
+      }
+      throw new Error('No checkout URL returned')
     } catch (e) {
-      console.error('Checkout failed', e)
+      setError(e instanceof Error ? e.message : 'Checkout failed')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -61,8 +78,14 @@ export function ExitIntentPopup() {
         <p className="exit-intent-text">
           Get 12 hours of unlimited swipes for just <strong>159 THB</strong> (was 199 THB)
         </p>
-        <button className="exit-intent-cta" onClick={handleClaimDiscount}>
-          Claim {DISCOUNT_PERCENT}% Discount
+        {error && <p className="exit-intent-error">{error}</p>}
+        <button
+          type="button"
+          className="exit-intent-cta"
+          onClick={handleClaimDiscount}
+          disabled={loading}
+        >
+          {loading ? 'Redirecting…' : `Claim ${DISCOUNT_PERCENT}% Discount`}
         </button>
         <button className="exit-intent-dismiss" onClick={() => {
           setDismissed(true)

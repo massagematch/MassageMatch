@@ -31,8 +31,11 @@ export default function Premium() {
           : undefined,
       })
       if (fnErr) throw fnErr
-      if (data?.url) window.location.href = data.url
-      else if (data?.error) throw new Error(data.error)
+      if (data?.url) {
+        window.location.assign(data.url)
+        return
+      }
+      if (data?.error) throw new Error(data.error)
       else setError('No checkout URL returned')
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Checkout failed')
@@ -59,7 +62,7 @@ export default function Premium() {
         onClick={handleCheckout}
         disabled={loading || !PREMIUM_PRICE_ID}
       >
-        {loading ? '…' : 'Buy 12h Premium'}
+        {loading ? 'Redirecting…' : 'Buy 12h Premium'}
       </button>
     </div>
   )

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useUniversalBuy } from '@/hooks/useUniversalBuy'
@@ -24,6 +25,8 @@ export function PaywallModal({ open, onClose, mode = 'signup' }: Props) {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { buyNow } = useUniversalBuy()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   if (!open) return null
 
@@ -33,6 +36,8 @@ export function PaywallModal({ open, onClose, mode = 'signup' }: Props) {
       onClose()
       return
     }
+    setError(null)
+    setLoading(true)
     try {
       await buyNow({
         price_id: UNLIMITED_PRICE_ID,
@@ -40,9 +45,10 @@ export function PaywallModal({ open, onClose, mode = 'signup' }: Props) {
         success_url: `${window.location.origin}/swipe?success=1`,
         cancel_url: window.location.href,
       })
-    } catch {
-      navigate('/pricing')
-      onClose()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Checkout failed')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -70,12 +76,14 @@ export function PaywallModal({ open, onClose, mode = 'signup' }: Props) {
           <button type="button" className="paywall-btn paywall-btn-primary" onClick={handleSignup}>
             🚀 Start Free Trial (3 swipes)
           </button>
+          {error && <p className="paywall-error">{error}</p>}
           <button
             type="button"
             className="paywall-btn paywall-btn-outline"
             onClick={user?.id ? handleUnlimited : handleSignup}
+            disabled={loading}
           >
-            💎 Unlimited 12h ฿199
+            {loading ? 'Redirecting…' : '💎 Unlimited 12h ฿199'}
           </button>
         </div>
 

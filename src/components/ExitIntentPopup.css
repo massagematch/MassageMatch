@@ -83,8 +83,20 @@
   margin-bottom: 0.75rem;
 }
 
-.exit-intent-cta:hover {
+.exit-intent-cta:hover:not(:disabled) {
   opacity: 0.9;
+}
+
+.exit-intent-cta:disabled {
+  opacity: 0.8;
+  cursor: wait;
+}
+
+.exit-intent-error {
+  color: var(--error, #ef4444);
+  font-size: 0.9rem;
+  margin: 0 0 0.75rem;
+  text-align: center;
 }
 
 .exit-intent-dismiss {

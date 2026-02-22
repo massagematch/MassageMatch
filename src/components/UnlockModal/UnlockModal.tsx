@@ -89,7 +89,7 @@ export function UnlockModal({ therapist, isRepeat, onClose }: Props) {
           onClick={handleUnlock}
           disabled={loading || !UNLOCK_PRICE_ID}
         >
-          {loading ? '…' : buttonCopy}
+          {loading ? 'Redirecting…' : buttonCopy}
         </button>
         <button type="button" className="unlock-modal-close" onClick={onClose} aria-label="Close">
           Cancel

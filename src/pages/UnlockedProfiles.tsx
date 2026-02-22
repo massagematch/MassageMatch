@@ -82,8 +82,11 @@ export default function UnlockedProfiles() {
         headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
       })
       if (fnErr) throw fnErr
-      if (data?.url) window.location.href = data.url
-      else if (data?.error) throw new Error(data.error)
+      if (data?.url) {
+        window.location.assign(data.url)
+        return
+      }
+      if (data?.error) throw new Error(data.error)
     } catch (e) {
       console.error(e)
     } finally {
