@@ -17,6 +17,7 @@ export default function Swipe() {
   const { profile } = useAuth()
   const { performSwipe, loading, error } = useSwipe()
   const [therapists, setTherapists] = useState<SwipeCardProfile[]>([])
+  const [listLoading, setListLoading] = useState(true)
   const [index, setIndex] = useState(0)
   const [radiusFilter, setRadiusFilter] = useState(true)
   const [unlockTherapist, setUnlockTherapist] = useState<SwipeCardProfile | null>(null)
@@ -29,9 +30,32 @@ export default function Swipe() {
   const customerLat = (profile as { location_lat?: number })?.location_lat
   const customerLng = (profile as { location_lng?: number })?.location_lng
   const customerCity = (profile as { location_city?: string })?.location_city
+  const isTherapist = profile?.role === 'therapist'
 
   useEffect(() => {
+    setListLoading(true)
     const load = async () => {
+      if (isTherapist) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('user_id, display_name, customer_images, location_city')
+          .eq('role', 'customer')
+          .limit(50)
+        const rows = (data ?? []) as { user_id: string; display_name?: string | null; customer_images?: string[] | null; location_city?: string | null }[]
+        const asCards: SwipeCardProfile[] = rows.map((r) => {
+          const imgs = Array.isArray(r.customer_images) ? r.customer_images : []
+          return {
+            id: r.user_id,
+            name: r.display_name || 'Customer',
+            image_url: imgs[0] || null,
+            images: imgs.length > 0 ? imgs : null,
+            location_city: r.location_city || null,
+          }
+        })
+        setTherapists(asCards)
+        setListLoading(false)
+        return
+      }
       let query = supabase
         .from('therapists')
         .select('id, name, image_url, images, bio, location_city, location_lat, location_lng, share_location, verified_photo')
@@ -47,9 +71,10 @@ export default function Swipe() {
         return { ...t, images: Array.isArray(t.images) ? t.images : null, distance_km } as SwipeCardProfile
       })
       setTherapists(withDistance)
+      setListLoading(false)
     }
     load()
-  }, [customerCity])
+  }, [customerCity, isTherapist])
 
   const therapistsInRadius = useMemo(() => {
     if (!radiusFilter || customerLat == null || customerLng == null) return therapists
@@ -59,9 +84,9 @@ export default function Swipe() {
     })
   }, [therapists, radiusFilter, customerLat, customerLng])
 
-  const currentList = radiusFilter && customerLat != null && customerLng != null ? therapistsInRadius : therapists
+  const currentList = isTherapist ? therapists : (radiusFilter && customerLat != null && customerLng != null ? therapistsInRadius : therapists)
   const current = currentList[index]
-  const canSwipe = (profile?.swipes_remaining ?? 0) > 0 && !loading
+  const canSwipe = isTherapist ? !loading : (profile?.swipes_remaining ?? 0) > 0 && !loading
 
   const dragX = dragStartX != null ? dragCurrentX - dragStartX : 0
 
@@ -82,11 +107,15 @@ export default function Swipe() {
         return
       }
       lastSwipeRef.current = { index, id: current.id }
+      if (isTherapist) {
+        setIndex((i) => i + 1)
+        return
+      }
       trackSwipe(action, current.id)
       const ok = await performSwipe(current.id, action)
       if (ok) setIndex((i) => i + 1)
     },
-    [current, canSwipe, index, performSwipe]
+    [current, canSwipe, index, performSwipe, isTherapist]
   )
 
   const handleDragEnd = useCallback(() => {
@@ -110,13 +139,21 @@ export default function Swipe() {
     }
   }
 
-  const locationLabel = customerCity || 'Phuket'
+  const locationLabel = isTherapist ? 'Customers' : (customerCity || 'Phuket')
   const distanceLabel = current?.distance_km != null ? `${current.distance_km.toFixed(0)}km` : ''
 
+  if (listLoading && currentList.length === 0) {
+    return (
+      <div className="swipe-page swipe-page-full">
+        <p className="muted">{isTherapist ? 'Loading customers…' : 'Loading therapists…'}</p>
+      </div>
+    )
+  }
   if (currentList.length === 0 && index === 0) {
     return (
       <div className="swipe-page swipe-page-full">
-        <p className="muted">Loading therapists…</p>
+        <p className="muted">{isTherapist ? 'No customers yet. Customers add photos in Profile → Bilder.' : 'No therapists in this area.'}</p>
+        <Link to="/">Back to home</Link>
       </div>
     )
   }
@@ -170,7 +207,7 @@ export default function Swipe() {
               onDragEnd={handleDragEnd}
               onSwipeLeft={() => handleAction('pass')}
               onSwipeRight={() => handleAction('like')}
-              onUnlock={() => setUnlockTherapist(p)}
+              onUnlock={() => setUnlockTherapist(p)} showUnlock={!isTherapist}
             />
           </div>
         ))}
@@ -185,10 +222,15 @@ export default function Swipe() {
       </div>
 
       <div className="swipe-footer-meta">
-        <span>{profile?.swipes_remaining ?? 0} swipes left</span>
-        {(profile?.swipes_remaining ?? 0) <= 0 && (
-          <Link to="/pricing" className="link">Get more</Link>
+        {!isTherapist && (
+          <>
+            <span>{profile?.swipes_remaining ?? 0} swipes left</span>
+            {(profile?.swipes_remaining ?? 0) <= 0 && (
+              <Link to="/pricing" className="link">Get more</Link>
+            )}
+          </>
         )}
+        {isTherapist && <span>Swipe on customers</span>}
       </div>
 
       {error && <div className="alert error swipe-alert">{error}</div>}

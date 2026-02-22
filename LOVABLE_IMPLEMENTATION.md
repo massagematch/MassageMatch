@@ -6,7 +6,7 @@ Use this document to implement **everything** we built in Cursor so Lovable has 
 
 ## Checklist (implement in this order)
 
-1. [ ] **Database:** Run all 14 migrations in `supabase/migrations/` in numeric order.
+1. [ ] **Database:** Run all **15** migrations in `supabase/migrations/` in numeric order (including `20260220000015_customer_images.sql`).
 2. [ ] **Edge Functions:** Deploy `create-checkout`, `stripe-webhook`, and optionally others; set secrets.
 3. [ ] **Public file:** Create `public/ee1c2622ae6de28571d0.txt` with exact content below.
 4. [ ] **index.html:** Add HilltopAds meta + Adsterra + RichAds scripts in `<head>` (exact blocks below).
@@ -18,6 +18,9 @@ Use this document to implement **everything** we built in Cursor so Lovable has 
 10. [ ] **useUniversalBuy:** Redirect with `window.location.assign(data.url)`.
 11. [ ] **UnlockModal, ExitIntentPopup, Pricing, Premium, UnlockedProfiles:** Loading/error, `assign`, "Redirecting…".
 12. [ ] **Env vars:** Set all `VITE_*` and Supabase Edge Function secrets.
+13. [ ] **Login/Sign-in:** Profile load timeout (12s) in AuthContext; Login sign-up uses profile **upsert** (onConflict: user_id); show "Signing in…" / "Creating account…"; Layout shows auth error + Refresh.
+14. [ ] **Admin:** Footer Admin button; clear error if not super admin; run SQL to set `profiles.role = 'superadmin'` for admin user_id.
+15. [ ] **Customer photos:** Migration 15; Profile → Bilder for customers: upload 1–5 to `customer-photos`, save URLs in `profiles.customer_images`; Swipe when role=therapist loads customers and shows cards (first image or placeholder); SwipeCard `showUnlock={false}` for therapist swipe.
 
 ---
 
@@ -39,6 +42,7 @@ Run in **Supabase SQL Editor** (or CLI) in this exact order:
 - `20260220000012_tinder_features.sql`
 - `20260220000013_therapist_images_carousel.sql`
 - `20260220000014_chat_profile_schema.sql`
+- `20260220000015_customer_images.sql` (customer_images, display_name, storage customer-photos, RLS so therapists can read customer profiles)
 
 (If your repo has different migration names, run all `supabase/migrations/*.sql` in lexicographic order.)
 

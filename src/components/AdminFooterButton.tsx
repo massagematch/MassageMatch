@@ -37,7 +37,7 @@ export function AdminFooterButton() {
       const admin = await isSuperAdmin()
       if (!admin) {
         await supabase.auth.signOut()
-        throw new Error('Access denied. Super admin only.')
+        throw new Error('Access denied. Add this user as super admin in Supabase: profiles.role = \'superadmin\'.')
       }
 
       setAdminToken()
@@ -74,15 +74,15 @@ export function AdminFooterButton() {
             <input
               type="email"
               className="admin-modal-input"
-              placeholder={ADMIN_EMAIL}
-              value={email}
+              placeholder="Admin email"
+              value={email || ADMIN_EMAIL}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
             />
             <input
               type="password"
               className="admin-modal-input"
-              placeholder="••••••••"
+              placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"

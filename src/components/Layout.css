@@ -21,6 +21,27 @@
   color: var(--accent);
 }
 
+.layout-auth-error {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--error, #ef4444);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.layout-auth-error button {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  background: var(--surface);
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  color: inherit;
+  cursor: pointer;
+}
+
 .header {
   display: flex;
   align-items: center;

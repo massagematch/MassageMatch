@@ -153,15 +153,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setError(null)
       setLoading(true)
-      // URGENT FIX: Prevent deadlock — don't block onAuthStateChange with async fetchProfile.
-      // Run fetchProfile in next tick so the auth callback returns immediately.
+      // Run fetchProfile in next tick; cap wait so user never stuck on "Loading…"
+      const PROFILE_TIMEOUT_MS = 12000
       const id = setTimeout(() => {
-        fetchProfile(session.user.id)
-          .then(() => {
+        const timeoutPromise = new Promise<void>((_, reject) =>
+          setTimeout(() => reject(new Error('PROFILE_TIMEOUT')), PROFILE_TIMEOUT_MS)
+        )
+        Promise.race([
+          fetchProfile(session.user.id).then(() => {
             setupRealtime(session.user.id)
-            // Update login streak and identify user for analytics
             updateStreak(session.user.id).catch(console.error)
             identifyUser(session.user.id, { email: session.user.email })
+          }),
+          timeoutPromise,
+        ])
+          .catch((e) => {
+            if (e?.message === 'PROFILE_TIMEOUT') {
+              setError('Connection slow. Refresh the page or try again.')
+            } else {
+              setError(e instanceof Error ? e.message : 'Could not load profile')
+            }
           })
           .finally(() => {
             setLoading(false)

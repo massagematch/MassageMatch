@@ -40,13 +40,17 @@ export default function Login() {
       const { data, error: err } = await supabase.auth.signUp({ email, password })
       if (err) throw err
       if (data.user) {
-        await supabase.from('profiles').insert({
-          user_id: data.user.id,
-          role,
-          location_region: location.region || null,
-          location_city: location.city || null,
-          location_area: location.area || null,
-        })
+        await supabase.from('profiles').upsert(
+          {
+            user_id: data.user.id,
+            role,
+            location_region: location.region || null,
+            location_city: location.city || null,
+            location_area: location.area || null,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id' }
+        )
         
         // Send welcome email
         try {
@@ -105,8 +109,8 @@ export default function Login() {
             required
             autoComplete={showSignUp ? 'new-password' : 'current-password'}
           />
-          <button type="submit" disabled={loading}>
-            {loading ? '…' : showSignUp ? 'Sign up' : 'Sign in'}
+          <button type="submit" disabled={loading} aria-busy={loading}>
+            {loading ? (showSignUp ? 'Creating account…' : 'Signing in…') : showSignUp ? 'Sign up' : 'Sign in'}
           </button>
         </form>
         <button

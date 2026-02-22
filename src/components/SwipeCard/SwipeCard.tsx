@@ -29,6 +29,7 @@ type Props = {
   onSwipeLeft: () => void
   onSwipeRight: () => void
   onUnlock: () => void
+  showUnlock?: boolean
 }
 
 function getImages(p: SwipeCardProfile): string[] {
@@ -39,7 +40,7 @@ function getImages(p: SwipeCardProfile): string[] {
 }
 
 export function SwipeCard(props: Props) {
-  const { profile, isTop, dragX, onDragStart, onDragMove, onDragEnd, onSwipeLeft, onSwipeRight, onUnlock } = props
+  const { profile, isTop, dragX, onDragStart, onDragMove, onDragEnd, onSwipeLeft, onSwipeRight, onUnlock, showUnlock = true } = props
   const images = getImages(profile)
   const [currentImage, setCurrentImage] = useState(0)
   const touchStart = useRef({ x: 0, y: 0 })
@@ -137,7 +138,9 @@ export function SwipeCard(props: Props) {
       </div>
       <div className="swipe-card-actions">
         <button type="button" className="swipe-action-btn pass" onClick={() => onSwipeLeft()} aria-label="Pass">❌</button>
-        <button type="button" className="swipe-action-btn unlock" onClick={() => onUnlock()} aria-label="Unlock">⭐ Unlock</button>
+        {showUnlock && (
+          <button type="button" className="swipe-action-btn unlock" onClick={() => onUnlock()} aria-label="Unlock">⭐ Unlock</button>
+        )}
         <button type="button" className="swipe-action-btn like" onClick={() => onSwipeRight()} aria-label="Like">❤️</button>
       </div>
     </div>

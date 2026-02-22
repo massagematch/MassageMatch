@@ -37,8 +37,24 @@ Apply these in your **Supabase SQL Editor** (or CLI) in numeric order:
 | 12 | `20260220000012_tinder_features.sql` | notifications, verified_photo, nearby_therapists RPC, therapist_rating_avg |
 | 13 | `20260220000013_therapist_images_carousel.sql` | therapists.images (jsonb) for carousel |
 | 14 | `20260220000014_chat_profile_schema.sql` | profiles: bio, services, prices (chat + profile) |
+| 15 | `20260220000015_customer_images.sql` | profiles: customer_images (1–5), display_name; storage customer-photos; RLS for therapist read customers |
 
 **Important:** All migrations must be applied for frontend and Edge Functions to work without errors.
+
+---
+
+## 🔐 Login, Sign-in & Admin (no stuck loading)
+
+- **Sign-in / Register:** Login page uses profile **upsert** on sign-up (no duplicate-key error). Auth profile load has a **12s timeout**; if it fails, the app shows "Connection slow. Refresh the page or try again." and a Refresh button so the user is never stuck on "Loading…".
+- **Admin (thaimassagematch@hotmail.com):** Use the **footer "Admin" button** (not the main Login page). Enter email and password; if you see "Access denied. Add this user as super admin in Supabase", run this in **Supabase SQL Editor** (replace with the real `user_id` from Auth → Users):
+
+```sql
+INSERT INTO public.profiles (user_id, role)
+VALUES ('USER_ID_FROM_AUTH_USERS', 'superadmin')
+ON CONFLICT (user_id) DO UPDATE SET role = 'superadmin';
+```
+
+- **Customer photos (1–5):** Customers upload 1–5 profile photos in **Profile → Bilder**. These are shown when **therapists** open **Swipe** (therapist sees customer cards with photos; no photos = placeholder). Run migration **15** and ensure storage bucket `customer-photos` exists.
 
 ---
 

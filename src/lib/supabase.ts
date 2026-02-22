@@ -17,7 +17,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 
 export type Profile = {
   user_id: string
-  role: 'customer' | 'therapist' | 'salong'
+  role: 'customer' | 'therapist' | 'salong' | 'superadmin'
   swipes_remaining: number
   swipes_used: number
   access_expires: string | null
@@ -35,6 +35,8 @@ export type Profile = {
   location_lat?: number | null
   location_lng?: number | null
   share_location?: boolean
+  customer_images?: string[] | null
+  display_name?: string | null
   created_at: string
   updated_at: string
 }

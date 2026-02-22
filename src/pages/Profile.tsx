@@ -30,6 +30,8 @@ export default function Profile() {
   const [services, setServices] = useState<string[]>([])
   const [thb60min, setThb60min] = useState<string>('')
   const [thb90min, setThb90min] = useState<string>('')
+  const [customerImages, setCustomerImages] = useState<string[]>([])
+  const [customerImagesUploading, setCustomerImagesUploading] = useState(false)
   const { validateSocial, validationResults, loading: validating } = useSocialValidation()
   const verifiedPhoto = (profile as { verified_photo?: boolean })?.verified_photo ?? false
 
@@ -53,6 +55,7 @@ export default function Profile() {
       const p = (profile as { prices?: { thb60min?: number; thb90min?: number } }).prices
       setThb60min(p?.thb60min != null ? String(p.thb60min) : '')
       setThb90min(p?.thb90min != null ? String(p.thb90min) : '')
+      setCustomerImages(Array.isArray((profile as { customer_images?: string[] }).customer_images) ? (profile as { customer_images?: string[] }).customer_images! : [])
     }
   }, [profile])
 
@@ -188,6 +191,36 @@ export default function Profile() {
     setServices((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]))
   }
 
+  const handleAddCustomerImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file || !user?.id || customerImages.length >= 5) return
+    setCustomerImagesUploading(true)
+    try {
+      const ext = file.name.split('.').pop() || 'jpg'
+      const path = `${user.id}/${crypto.randomUUID()}.${ext}`
+      const { error: upErr } = await supabase.storage.from('customer-photos').upload(path, file, { upsert: false })
+      if (upErr) throw upErr
+      const { data: urlData } = supabase.storage.from('customer-photos').getPublicUrl(path)
+      const newUrls = [...customerImages, urlData.publicUrl]
+      setCustomerImages(newUrls)
+      await supabase.from('profiles').update({ customer_images: newUrls, updated_at: new Date().toISOString() }).eq('user_id', user.id)
+      await refetchProfile()
+    } catch (err) {
+      console.error('Upload failed', err)
+    } finally {
+      setCustomerImagesUploading(false)
+      e.target.value = ''
+    }
+  }
+
+  const handleRemoveCustomerImage = async (index: number) => {
+    if (!user?.id) return
+    const newUrls = customerImages.filter((_, i) => i !== index)
+    setCustomerImages(newUrls)
+    await supabase.from('profiles').update({ customer_images: newUrls, updated_at: new Date().toISOString() }).eq('user_id', user.id)
+    await refetchProfile()
+  }
+
   return (
     <div className="profile-page">
       <h1>Your Profile</h1>
@@ -203,6 +236,26 @@ export default function Profile() {
 
       {profileTab === 'images' && (
       <section className="profile-section profile-verify">
+        {profile?.role === 'customer' && (
+          <>
+            <h2 className="profile-section-title">Profile photos (1–5)</h2>
+            <p className="profile-images-hint">These are shown when therapists swipe. Add 1–5 photos.</p>
+            <div className="profile-customer-images">
+              {customerImages.map((url, i) => (
+                <div key={url} className="profile-customer-image-wrap">
+                  <img src={url} alt={`Photo ${i + 1}`} className="profile-customer-image" />
+                  <button type="button" className="profile-customer-image-remove" onClick={() => handleRemoveCustomerImage(i)} aria-label="Remove">×</button>
+                </div>
+              ))}
+              {customerImages.length < 5 && (
+                <label className="profile-customer-image-add">
+                  <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleAddCustomerImage} disabled={customerImagesUploading} hidden />
+                  {customerImagesUploading ? 'Uploading…' : '+'}
+                </label>
+              )}
+            </div>
+          </>
+        )}
         <h2 className="profile-section-title">Photo verification</h2>
         {verifiedPhoto ? (
           <p className="verified-label"><span className="verified-badge">Verified ✓</span> Your photo is verified.</p>

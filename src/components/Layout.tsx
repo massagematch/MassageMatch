@@ -8,11 +8,17 @@ import { NotificationBell } from '@/components/NotificationBell'
 import './Layout.css'
 
 export default function Layout() {
-  const { user, profile, signOut } = useAuth()
+  const { user, profile, signOut, error: authError } = useAuth()
   const { connected } = useRealtime()
 
   return (
     <div className="layout">
+      {authError && (
+        <div className="layout-auth-error" role="alert">
+          {authError}
+          <button type="button" onClick={() => window.location.reload()}>Refresh</button>
+        </div>
+      )}
       {profile && !(profile.plan_expires ? new Date(profile.plan_expires) > new Date() : false) && (
         <Link to="/pricing" className="ad-cta-banner">
           Ingen reklam för 99 THB! →
