@@ -1,0 +1,9 @@
+# MassageMatch Thailand - Allow Google & other crawlers to find the site
+User-agent: *
+Allow: /
+
+# Don't index admin panel
+Disallow: /admin
+
+# Sitemap (fixar sitemap-fel i Search Console)
+Sitemap: https://massagematchthai.com/sitemap.xml

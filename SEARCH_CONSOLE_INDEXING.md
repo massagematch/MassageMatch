@@ -2,7 +2,10 @@
 
 Skicka dessa URLs för indexering i **Google Search Console** (URL Inspection → Request Indexing). Byt ut `https://massagematchthai.com` mot din faktiska domän (t.ex. `https://dinapp.lovable.app` eller `https://massagematchthai.com`).
 
-**Sitemap:** Skicka sitemap-URL till Search Console → Sitemaps:  
+**PRIORITET 1 – robots.txt (fixar sitemap-fel):**  
+Ha `public/robots.txt` med `Allow: /`, `Disallow: /admin` och `Sitemap: https://din-domän/sitemap.xml`. I Lovable: public/ → New file → robots.txt → klistra in innehåll från repot.
+
+**Sitemap:** Search Console → Sitemaps → lägg till:  
 `https://massagematchthai.com/sitemap.xml`
 
 ---

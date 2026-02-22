@@ -175,6 +175,14 @@ If checkout “just loads” on phone: verify (1) `create-checkout` is deployed 
 
 ---
 
+## 📁 Webbplatskarta & robots.txt (Google)
+
+- **robots.txt:** `public/robots.txt` – tillåter alla crawlers (`Allow: /`), blockerar `/admin`, pekar på sitemap. **Lovable:** Ladda upp till `public/` om den saknas; fixar ofta sitemap-fel i Search Console.
+- **Sitemap:** `public/sitemap.xml` – startsida + 18 city-URL:er. I Search Console → Sitemaps: lägg till `https://din-domän/sitemap.xml`.
+- **City-sidor:** Route `/:city` (CityPage) med unik titel och meta per stad – bra för sök.
+
+---
+
 ## 📁 Ad Verification & Static Files
 
 - **HilltopAds**
