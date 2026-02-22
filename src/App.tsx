@@ -46,6 +46,10 @@ function AppRoutes() {
         }
       >
         <Route index element={<Home />} />
+        <Route path="phuket" element={<Home city="phuket" />} />
+        <Route path="bangkok" element={<Home city="bangkok" />} />
+        <Route path="pattaya" element={<Home city="pattaya" />} />
+        <Route path="chiang-mai" element={<Home city="chiang-mai" />} />
         <Route path="swipe" element={<Swipe />} />
         <Route path="premium" element={<Premium />} />
         <Route path="pricing" element={<Pricing />} />

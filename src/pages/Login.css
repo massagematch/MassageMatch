@@ -66,6 +66,10 @@
   color: var(--muted);
 }
 
+.login-rules-check a.link-rules {
+  margin-left: 0.25rem;
+}
+
 .login-rules-check a {
   color: var(--accent);
   text-decoration: underline;

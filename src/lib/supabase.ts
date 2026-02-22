@@ -38,6 +38,8 @@ export type Profile = {
   customer_images?: string[] | null
   display_name?: string | null
   birth_year?: number | null
+  referrer_id?: string | null
+  referral_days?: number
   created_at: string
   updated_at: string
 }

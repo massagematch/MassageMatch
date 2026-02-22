@@ -30,9 +30,10 @@ const legalSection = (
   <section id={legalId} className="faq-legal">
     <h2>Regler & Användaransvar</h2>
     <p><strong>Genom registrering godkänner du:</strong></p>
+    <p className="faq-legal-summary">Användare ansvarar för Thai lag/licens. Inga sexuella tjänster.</p>
     <ol>
       <li>Följa Thai lag (licens, <strong>inga sexuella tjänster</strong>).</li>
-      <li>Therapists/freelancers/salonger ansvarar för allt.</li>
+      <li>Freelancers/salonger ansvarar för allt.</li>
       <li>Kunder: Endast legal massage.</li>
       <li>MassageMatch = matchmaking, <strong>ej ansvarig</strong>.</li>
     </ol>

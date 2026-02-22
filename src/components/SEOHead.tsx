@@ -10,8 +10,8 @@ interface SEOHeadProps {
 }
 
 export function SEOHead({
-  title = 'MassageMatch Thailand - Connect with Trusted Therapists',
-  description = 'Find and connect with trusted massage therapists and salongs in Thailand. Premium access, verified profiles, instant booking.',
+  title = 'MassageMatch Thailand - Connect with Trusted Freelancers',
+  description = 'Find and connect with trusted massage freelancers and salongs in Thailand. Premium access, verified profiles, instant booking.',
   image = '/og-image.jpg',
   type = 'website',
   locale = 'en',

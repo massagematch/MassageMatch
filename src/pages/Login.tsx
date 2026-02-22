@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { LocationSelector, type LocationValue } from '@/components/LocationSelector'
 import './Login.css'
@@ -15,7 +15,9 @@ export default function Login() {
   const [message, setMessage] = useState<string | null>(null)
   const [agreedToRules, setAgreedToRules] = useState(false)
   const [age, setAge] = useState<number>(18)
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const referrerId = searchParams.get('ref')?.trim() || null
 
   const currentYear = new Date().getFullYear()
   const ageOptions = Array.from({ length: 83 }, (_, i) => 18 + i)
@@ -59,6 +61,7 @@ export default function Login() {
             user_id: data.user.id,
             role,
             birth_year: birthYear,
+            referrer_id: referrerId || null,
             location_region: location.region || null,
             location_city: location.city || null,
             location_area: location.area || null,
@@ -135,7 +138,7 @@ export default function Login() {
           {showSignUp && (
           <label className="login-rules-check">
             <input type="checkbox" checked={agreedToRules} onChange={(e) => setAgreedToRules(e.target.checked)} />
-            <span>I agree to the <a href="/faq#legal" target="_blank" rel="noopener noreferrer">rules &amp; FAQ</a></span>
+            <span>I agree to the rules &amp; FAQ. <a href="/faq#legal" target="_blank" rel="noopener noreferrer" className="link-rules">[Läs regler]</a></span>
           </label>
         )}
         <button type="submit" disabled={loading} aria-busy={loading}>

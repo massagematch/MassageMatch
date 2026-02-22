@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
+import { useABTest } from '@/hooks/useABTest'
 import './ExitIntentPopup.css'
 
 const DISCOUNT_CODE = 'EXIT20'
@@ -9,8 +10,12 @@ const DISCOUNT_PERCENT = 20
 
 export function ExitIntentPopup() {
   const { user, profile } = useAuth()
+  const abVariant = useABTest(user?.id)
   const [show, setShow] = useState(false)
   const [dismissed, setDismissed] = useState(false)
+  const priceId = abVariant === 'B'
+    ? (import.meta.env.VITE_STRIPE_UNLIMITED_12H_79 ?? import.meta.env.VITE_STRIPE_UNLIMITED_12H)
+    : import.meta.env.VITE_STRIPE_UNLIMITED_12H
 
   useEffect(() => {
     if (dismissed || !user || profile?.plan_expires) return // Don't show if already has plan
@@ -30,7 +35,6 @@ export function ExitIntentPopup() {
   const [error, setError] = useState<string | null>(null)
 
   async function handleClaimDiscount() {
-    const priceId = import.meta.env.VITE_STRIPE_UNLIMITED_12H
     if (!priceId || !user) {
       setError('Checkout not configured')
       return
@@ -78,10 +82,10 @@ export function ExitIntentPopup() {
         <button className="exit-intent-close" onClick={() => setShow(false)}>
           ×
         </button>
-        <h2>Wait! 🎁</h2>
+        <h2>Top freelancers väntar! 🎁</h2>
         <p className="exit-intent-discount">{DISCOUNT_PERCENT}% OFF Your First Purchase</p>
         <p className="exit-intent-text">
-          Get 12 hours of unlimited swipes for just <strong>159 THB</strong> (was 199 THB)
+          Get 12 hours of unlimited swipes for just <strong>{abVariant === 'B' ? '79' : '99'} THB</strong> (limited offer)
         </p>
         {error && (
           <div className="exit-intent-error-wrap">

@@ -50,6 +50,19 @@ export async function updateStreak(userId: string): Promise<number> {
     .from('profiles')
     .update({ streak_data: updatedStreak })
     .eq('user_id', userId)
+
+  // Unlock streak badges (1–5 days)
+  const streakBadges = [
+    { id: 'streak_1', name: '1 day', description: '1 day streak' },
+    { id: 'streak_2', name: '2 days', description: '2 day streak' },
+    { id: 'streak_3', name: '3 days', description: '3 day streak' },
+    { id: 'streak_4', name: '4 days', description: '4 day streak' },
+    { id: 'streak_5', name: '5 days', description: '5 day streak' },
+  ]
+  if (newStreak >= 1 && newStreak <= 5) {
+    const badge = streakBadges[newStreak - 1]
+    await unlockBadge(userId, badge.id, badge.name, badge.description)
+  }
   
   // Grant bonus swipe for daily login
   if (daysSinceLogin >= 1) {

@@ -31,6 +31,7 @@ export default function Dashboard() {
   const [aiMessage, setAiMessage] = useState<string>('')
   const [nearbyList, setNearbyList] = useState<NearbyTherapist[]>([])
   const [nearbyLoading, setNearbyLoading] = useState(false)
+  const [leaderboard, setLeaderboard] = useState<{ rank: number; display_name: string; referrals_count: number }[]>([])
 
   const userLat = (profile as { location_lat?: number })?.location_lat
   const userLng = (profile as { location_lng?: number })?.location_lng
@@ -68,6 +69,12 @@ export default function Dashboard() {
       .finally(() => setNearbyLoading(false))
   }, [userLat, userLng])
 
+  useEffect(() => {
+    supabase.rpc('get_referral_leaderboard', { lim: 10 }).then(({ data }) => {
+      setLeaderboard((data as { rank: number; display_name: string; referrals_count: number }[]) ?? [])
+    })
+  }, [])
+
   return (
     <div className="dashboard">
       <h1>Dashboard</h1>
@@ -92,6 +99,33 @@ export default function Dashboard() {
         </div>
       </div>
 
+      <section className="dashboard-section referral-section">
+        <h2>📱 Dela → 7d Gratis Premium!</h2>
+        <p className="section-desc">Bjud in vänner: när de registrerar och betalar får du 7 dagar gratis Premium.</p>
+        <div className="referral-actions">
+          <input
+            type="text"
+            readOnly
+            className="referral-input"
+            value={user ? `${typeof window !== 'undefined' ? window.location.origin : ''}/login?ref=${user.id}` : ''}
+            aria-label="Referral link"
+          />
+          <button
+            type="button"
+            className="btn-referral-copy"
+            onClick={() => {
+              const url = user ? `${window.location.origin}/login?ref=${user.id}` : ''
+              if (url && navigator.clipboard) {
+                navigator.clipboard.writeText(url)
+                // Could add toast "Copied!"
+              }
+            }}
+          >
+            Kopiera länk
+          </button>
+        </div>
+      </section>
+
       {aiList.length > 0 && (
         <section className="dashboard-section ai-section">
           <h2>AI för dig</h2>
@@ -115,11 +149,11 @@ export default function Dashboard() {
 
       {(userLat != null && userLng != null) && (
         <section className="dashboard-section nearby-section">
-          <h2>Therapists inom 5km</h2>
+          <h2>Freelancers inom 5km</h2>
           {nearbyLoading ? (
             <p className="muted">Loading…</p>
           ) : nearbyList.length === 0 ? (
-            <p className="muted">No therapists within 5km. Update your location in Profile.</p>
+            <p className="muted">No freelancers within 5km. Update your location in Profile.</p>
           ) : (
             <div className="therapist-cards">
               {nearbyList.map((t) => (
@@ -133,6 +167,21 @@ export default function Dashboard() {
               ))}
             </div>
           )}
+        </section>
+      )}
+
+      {leaderboard.length > 0 && (
+        <section className="dashboard-section leaderboard-section">
+          <h2>🏆 Referral leaderboard (top 10)</h2>
+          <ul className="leaderboard-list">
+            {leaderboard.map((row) => (
+              <li key={row.rank} className="leaderboard-row">
+                <span className="leaderboard-rank">#{row.rank}</span>
+                <span className="leaderboard-name">{row.display_name}</span>
+                <span className="leaderboard-count">{row.referrals_count} referrals</span>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 

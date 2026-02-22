@@ -218,6 +218,24 @@ Deno.serve(async (req) => {
       { onConflict: 'user_id' }
     )
 
+    // Referral: when B (userId) pays, give referrer +7d premium
+    const { data: payerProfile } = await supabase.from('profiles').select('referrer_id').eq('user_id', userId).single()
+    const referrerId = payerProfile?.referrer_id as string | null | undefined
+    if (referrerId) {
+      const { data: refProfile } = await supabase.from('profiles').select('plan_expires, referral_days, referrals_count').eq('user_id', referrerId).single()
+      const r = refProfile as { plan_expires?: string; referral_days?: number; referrals_count?: number } | null
+      const refExpires = r?.plan_expires ? new Date(r.plan_expires) : new Date(0)
+      const now = new Date()
+      const newExpires = refExpires > now ? new Date(refExpires.getTime() + 7 * 24 * 60 * 60 * 1000) : new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+      await supabase.from('profiles').update({
+        plan_expires: newExpires.toISOString(),
+        plan_type: 'premium',
+        referral_days: (r?.referral_days ?? 0) + 7,
+        referrals_count: (r?.referrals_count ?? 0) + 1,
+        updated_at: now.toISOString(),
+      }).eq('user_id', referrerId)
+    }
+
     if (upsertErr) {
       await supabase.from('logs').insert({
         level: 'error',

@@ -40,6 +40,8 @@ Apply these in your **Supabase SQL Editor** (or CLI) in numeric order:
 | 15 | `20260220000015_customer_images.sql` | profiles: customer_images (1–5), display_name; storage customer-photos; RLS for therapist read customers |
 | 16 | `20260220000016_therapist_visible_and_promo.sql` | get_therapists_visible RPC: only therapists with plan_expires &gt; now() appear in swipe/search |
 | 17 | `20260220000017_age_verification.sql` | Age verification (18+): `profiles.birth_year`; required on register, editable on Profile with Save |
+| 18 | `20260220000018_referral_referrer.sql` | Referral: `profiles.referrer_id`, `referral_days`; ?ref= on signup; referrer gets +7d when referred user pays |
+| 19 | `20260220000019_referral_leaderboard.sql` | `get_referral_leaderboard(lim)` RPC for Dashboard top 10 referrers |
 
 **Important:** All migrations must be applied for frontend and Edge Functions to work without errors.
 
@@ -91,7 +93,8 @@ supabase functions deploy apply-promo
 
 - **Terminology:** UI uses "Therapist/Freelance" and "therapists/freelancers" (e.g. Login role, Pricing plans, Home, FAQ). DB and code keep `role = 'therapist'` and table `therapists`.
 - **3-month free:** Therapists can enter code **NEWTHERAPIST90** on **Pricing** (PromoCodeInput). Deploy **apply-promo** Edge Function; it sets `plan_expires` (+90 days), `promo_used = true`, and ensures a `therapists` row. **Timer** on Profile (PlanTimer) shows Premium active until expiry; after that they must pay Premium or they **do not appear** in customer swipe/search (migration 16: `get_therapists_visible` filters by `plan_expires > now()`).
-- **Legal:** FAQ has section **#legal** (Regler & Användaransvar). Login sign-up has checkbox "I agree to the rules & FAQ" linking to `/faq#legal`. Footer (AdminFooterButton) has "FAQ & Regler | thaimassagematch@hotmail.com". Contact email everywhere: **thaimassagematch@hotmail.com**.
+- **Legal:** FAQ has section **#legal** (Regler & Användaransvar). Login sign-up has checkbox "I agree to the rules & FAQ" and **[Läs regler]** link to `/faq#legal`. Text: "Användare ansvarar för Thai lag/licens. Inga sexuella tjänster." Contact everywhere: **thaimassagematch@hotmail.com**.
+- **Wording:** UI shows "freelance therapist" / "freelancers" where appropriate; DB keeps `role = 'therapist'` and table `therapists`.
 
 ---
 
@@ -116,7 +119,7 @@ All payment clicks must send the user to Stripe Checkout and work reliably on ph
 **Lovable / production checklist:**
 1. **Deploy `create-checkout`** – Supabase Edge Functions → deploy `create-checkout`; set secret `STRIPE_SECRET_KEY`.
 2. **Set env vars** – In Lovable (or Vercel), set every Stripe Price ID you use:
-   - `VITE_STRIPE_UNLOCK_PROFILE`, `VITE_STRIPE_UNLIMITED_12H`, `VITE_STRIPE_PREMIUM_PRICE_ID`
+   - `VITE_STRIPE_UNLOCK_PROFILE`, `VITE_STRIPE_UNLIMITED_12H`, `VITE_STRIPE_UNLIMITED_12H_79` (optional, for A/B ฿79), `VITE_STRIPE_PREMIUM_PRICE_ID`
    - `VITE_STRIPE_THERAPIST_PREMIUM_1M`, `VITE_STRIPE_THERAPIST_PREMIUM_3M`, `VITE_STRIPE_BOOST_SWIPE_6H`, `VITE_STRIPE_BOOST_SEARCH_24H`
    - `VITE_STRIPE_SALONG_PREMIUM_1M`, `VITE_STRIPE_SALONG_TOPLIST_7D`
 3. **Cold start:** First request to `create-checkout` on a cold Edge Function may take 5–15 seconds. Button shows “Redirecting…” until then; do not navigate away.
@@ -133,7 +136,11 @@ If checkout “just loads” on phone: verify (1) `create-checkout` is deployed 
 - **Swipe:** Full-screen cards, image carousel (1/5), Pass / Like / Unlock. When **swipes_remaining ≤ 0**, overlay + **PaywallModal** (premium) block further swipes.
 - **PaywallModal:** “Unlock Phuket’s Best” – Start Free Trial, Unlimited ฿199, benefits, Login. Uses Stripe checkout.
 - **Single-profile unlock:** UnlockModal + useUniversalBuy; success/refund via stripe-webhook.
-- **Dashboard:** AI recommendations, nearby therapists, NotificationBell, links.
+- **Dashboard:** AI recommendations, nearby freelancers, **Referral** ("📱 Dela → 7d Gratis Premium!" copy link `?ref=user_id`), **Referral leaderboard** (top 10), NotificationBell, links.
+- **Referral:** Signup with `?ref=<user_id>` sets `referrer_id`; when referred user pays (Stripe), referrer gets +7 days Premium automatically (stripe-webhook). Dashboard shows share link and leaderboard.
+- **City routes:** `/phuket`, `/bangkok`, `/pattaya`, `/chiang-mai` show Home filtered by city (get_therapists_visible). **Sitemap:** `public/sitemap.xml` with base + 4 cities; hreflang en/th/sv in index.
+- **A/B:** Exit popup 12h price: 50% see ฿99, 50% see ฿79 (use `VITE_STRIPE_UNLIMITED_12H_79` for B). Stored in `ab_tests`.
+- **Gamification:** Swipe streaks 1–5 days unlock badges; leaderboard by referrals_count.
 - **Profile:** Tabs (Bilder, Location, Bio, Priser, Services); Thailand LocationSelector, MapButton.
 - **Admin:** Discrete footer button (opacity 40%), mini login modal, 30min session.
 - **Ads (free users only):**
@@ -196,6 +203,7 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'superadmin';
 
 ## 📚 Docs in Repo
 
+- **`LOVABLE_IMPLEMENTATION.md`** – Step-by-step for Lovable: migrations 18–19, env, test checklist, PC + mobile.
 - `OPTIMIZATION_SUMMARY.md` – Performance/SEO/CRO
 - `VERIFICATION_CHECKLIST.md` – Deployment checklist
 - `SOCIAL_LINKS_IMPLEMENTATION.md` – Social validation

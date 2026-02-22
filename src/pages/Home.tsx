@@ -14,19 +14,31 @@ type TopTherapist = {
   verified_photo?: boolean
 }
 
-export default function Home() {
+const CITY_MAP: Record<string, string> = {
+  phuket: 'Phuket',
+  bangkok: 'Bangkok',
+  pattaya: 'Pattaya',
+  'chiang-mai': 'Chiang Mai',
+}
+
+interface HomeProps {
+  city?: string
+}
+
+export default function Home({ city: citySlug }: HomeProps = {}) {
   const { profile } = useAuth()
   const [topTherapists, setTopTherapists] = useState<TopTherapist[]>([])
   const [showPaywall, setShowPaywall] = useState(false)
+  const cityName = citySlug ? CITY_MAP[citySlug] || citySlug : null
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase.rpc('get_therapists_visible', { p_city: null })
+      const { data } = await supabase.rpc('get_therapists_visible', { p_city: cityName })
       const list = (data ?? []) as { id: string; name: string; image_url: string | null; location_city: string | null; verified_photo?: boolean }[]
       setTopTherapists(list.filter((t) => t.image_url).slice(0, 6))
     }
     load()
-  }, [])
+  }, [cityName])
 
   return (
     <div className="home">
@@ -38,7 +50,7 @@ export default function Home() {
 
       {topTherapists.length > 0 && (
         <section className="home-top-section">
-          <h2 className="home-top-title">Top therapists/freelancers in Phuket</h2>
+          <h2 className="home-top-title">Top freelancers in {cityName || 'Phuket'}</h2>
           <div className="home-top-grid">
             {topTherapists.map((t) => (
               <button
@@ -73,7 +85,7 @@ export default function Home() {
       <nav className="nav-cards">
         <Link to="/swipe" className="card">
           <span className="card-title">Swipe</span>
-          <span className="card-desc">Discover therapists/freelancers</span>
+          <span className="card-desc">Discover freelancers</span>
         </Link>
         <Link to="/pricing" className="card accent">
           <span className="card-title">Pricing</span>
