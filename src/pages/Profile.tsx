@@ -33,7 +33,11 @@ export default function Profile() {
   const [thb90min, setThb90min] = useState<string>('')
   const [customerImages, setCustomerImages] = useState<string[]>([])
   const [customerImagesUploading, setCustomerImagesUploading] = useState(false)
+  const [age, setAge] = useState<number>(18)
   const { validateSocial, validationResults, loading: validating } = useSocialValidation()
+
+  const currentYear = new Date().getFullYear()
+  const ageOptions = Array.from({ length: 83 }, (_, i) => 18 + i)
   const verifiedPhoto = (profile as { verified_photo?: boolean })?.verified_photo ?? false
 
   const SERVICE_OPTIONS = ['Swedish massage', 'Thai massage', 'Hot stone', 'Aromatherapy', 'Deep tissue', 'Sports massage']
@@ -57,6 +61,8 @@ export default function Profile() {
       setThb60min(p?.thb60min != null ? String(p.thb60min) : '')
       setThb90min(p?.thb90min != null ? String(p.thb90min) : '')
       setCustomerImages(Array.isArray((profile as { customer_images?: string[] }).customer_images) ? (profile as { customer_images?: string[] }).customer_images! : [])
+      const by = (profile as { birth_year?: number | null }).birth_year
+      setAge(by != null ? currentYear - by : 18)
     }
   }, [profile])
 
@@ -85,6 +91,11 @@ export default function Profile() {
       setTimeout(() => setSaveStatus('idle'), 3000)
       return
     }
+    if (age < 18 || age > 100) {
+      setSaveStatus('error')
+      setTimeout(() => setSaveStatus('idle'), 3000)
+      return
+    }
 
     setSaving(true)
     setSaveStatus('idle')
@@ -101,6 +112,7 @@ export default function Profile() {
           location_lat: locationLat,
           location_lng: locationLng,
           share_location: shareLocation,
+          birth_year: currentYear - age,
           bio: bio.trim() || null,
           services: services.length ? services : null,
           prices: { thb60min: thb60min ? parseInt(thb60min, 10) : null, thb90min: thb90min ? parseInt(thb90min, 10) : null },
@@ -142,7 +154,7 @@ export default function Profile() {
       setSaving(false)
       setTimeout(() => setSaveStatus('idle'), 3000)
     }
-  }, [user?.id, socialLinks, validationResults, profile, refetchProfile, location, locationLat, locationLng, shareLocation, bio, services, thb60min, thb90min])
+  }, [user?.id, socialLinks, validationResults, profile, refetchProfile, location, locationLat, locationLng, shareLocation, bio, services, thb60min, thb90min, age, currentYear])
 
   const canSave =
     (Object.values(socialLinks).some((v) => v?.trim()) || location.region || bio.trim() || services.length > 0 || thb60min || thb90min) &&
@@ -283,6 +295,15 @@ export default function Profile() {
 
       {profileTab === 'location' && (
       <section className="profile-section">
+        <h2 className="profile-section-title">Age (18+)</h2>
+        <div className="profile-age-row">
+          <label htmlFor="profile-age">I am:</label>
+          <select id="profile-age" value={age} onChange={(e) => setAge(Number(e.target.value))} className="profile-age-select">
+            {ageOptions.map((y) => (
+              <option key={y} value={y}>{y} years old</option>
+            ))}
+          </select>
+        </div>
         <h2 className="profile-section-title">📍 Location (Thailand)</h2>
         <LocationSelector value={location} onChange={setLocation} />
         {(profile?.role === 'therapist' || profile?.role === 'salong') && (

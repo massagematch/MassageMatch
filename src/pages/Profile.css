@@ -23,6 +23,28 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.profile-age-row {
+  margin-bottom: 1rem;
+}
+
+.profile-age-row label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.profile-age-select {
+  width: 100%;
+  max-width: 12rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
 .profile-section-title {
   margin: 0 0 1rem;
   font-size: 1.1rem;

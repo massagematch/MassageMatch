@@ -39,8 +39,11 @@ Apply these in your **Supabase SQL Editor** (or CLI) in numeric order:
 | 14 | `20260220000014_chat_profile_schema.sql` | profiles: bio, services, prices (chat + profile) |
 | 15 | `20260220000015_customer_images.sql` | profiles: customer_images (1–5), display_name; storage customer-photos; RLS for therapist read customers |
 | 16 | `20260220000016_therapist_visible_and_promo.sql` | get_therapists_visible RPC: only therapists with plan_expires &gt; now() appear in swipe/search |
+| 17 | `20260220000017_age_verification.sql` | Age verification (18+): `profiles.birth_year`; required on register, editable on Profile with Save |
 
 **Important:** All migrations must be applied for frontend and Edge Functions to work without errors.
+
+**Age verification (18+):** Registration requires age 18–100 (stored as `birth_year`). Profile → Location tab has an Age (18+) selector; changes are saved with the **Save Social Contacts** button. Backend CHECK ensures only birth years that imply age ≥ 18 are allowed.
 
 ---
 

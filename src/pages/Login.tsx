@@ -14,7 +14,11 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [agreedToRules, setAgreedToRules] = useState(false)
+  const [age, setAge] = useState<number>(18)
   const navigate = useNavigate()
+
+  const currentYear = new Date().getFullYear()
+  const ageOptions = Array.from({ length: 83 }, (_, i) => 18 + i)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -40,15 +44,21 @@ export default function Login() {
       setError('Please agree to the rules and FAQ to create an account.')
       return
     }
+    if (showSignUp && (age < 18 || age > 100)) {
+      setError('You must be 18 or older to register.')
+      return
+    }
     setLoading(true)
     try {
       const { data, error: err } = await supabase.auth.signUp({ email, password })
       if (err) throw err
       if (data.user) {
+        const birthYear = currentYear - age
         await supabase.from('profiles').upsert(
           {
             user_id: data.user.id,
             role,
+            birth_year: birthYear,
             location_region: location.region || null,
             location_city: location.city || null,
             location_area: location.area || null,
@@ -89,6 +99,14 @@ export default function Login() {
                 <option value="customer">Customer</option>
                 <option value="therapist">Therapist/Freelance</option>
                 <option value="salong">Salong</option>
+              </select>
+            </div>
+            <div className="age-selector">
+              <label htmlFor="signup-age">I am (18+):</label>
+              <select id="signup-age" value={age} onChange={(e) => setAge(Number(e.target.value))} className="age-select" required aria-required="true">
+                {ageOptions.map((y) => (
+                  <option key={y} value={y}>{y} years old</option>
+                ))}
               </select>
             </div>
             <div className="location-signup">

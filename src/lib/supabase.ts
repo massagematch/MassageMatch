@@ -37,6 +37,7 @@ export type Profile = {
   share_location?: boolean
   customer_images?: string[] | null
   display_name?: string | null
+  birth_year?: number | null
   created_at: string
   updated_at: string
 }
