@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import './ExitIntentPopup.css'
@@ -9,7 +9,6 @@ const DISCOUNT_PERCENT = 20
 
 export function ExitIntentPopup() {
   const { user, profile } = useAuth()
-  const navigate = useNavigate()
   const [show, setShow] = useState(false)
   const [dismissed, setDismissed] = useState(false)
 
@@ -59,7 +58,13 @@ export function ExitIntentPopup() {
       }
       throw new Error('No checkout URL returned')
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Checkout failed')
+      const msg = e instanceof Error ? e.message : 'Checkout failed'
+      const isEdgeFnError = /edge function|failed to send|network|fetch/i.test(String(msg))
+      setError(
+        isEdgeFnError
+          ? `Checkout service unavailable. Go to Pricing and use code ${DISCOUNT_CODE} (or FIRST20) at checkout.`
+          : msg
+      )
     } finally {
       setLoading(false)
     }
@@ -78,7 +83,14 @@ export function ExitIntentPopup() {
         <p className="exit-intent-text">
           Get 12 hours of unlimited swipes for just <strong>159 THB</strong> (was 199 THB)
         </p>
-        {error && <p className="exit-intent-error">{error}</p>}
+        {error && (
+          <div className="exit-intent-error-wrap">
+            <p className="exit-intent-error">{error}</p>
+            <Link to="/pricing" className="exit-intent-pricing-link" onClick={() => setShow(false)}>
+              Go to Pricing →
+            </Link>
+          </div>
+        )}
         <button
           type="button"
           className="exit-intent-cta"
@@ -87,6 +99,7 @@ export function ExitIntentPopup() {
         >
           {loading ? 'Redirecting…' : `Claim ${DISCOUNT_PERCENT}% Discount`}
         </button>
+        <p className="exit-intent-code">Use code {DISCOUNT_CODE} or FIRST20 at checkout</p>
         <button className="exit-intent-dismiss" onClick={() => {
           setDismissed(true)
           setShow(false)

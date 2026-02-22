@@ -92,10 +92,33 @@
   cursor: wait;
 }
 
+.exit-intent-error-wrap {
+  margin: 0 0 0.75rem;
+  text-align: center;
+}
+
 .exit-intent-error {
   color: var(--error, #ef4444);
   font-size: 0.9rem;
-  margin: 0 0 0.75rem;
+  margin: 0 0 0.35rem;
+}
+
+.exit-intent-pricing-link {
+  display: inline-block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--accent);
+  margin-top: 0.25rem;
+}
+
+.exit-intent-pricing-link:hover {
+  text-decoration: underline;
+}
+
+.exit-intent-code {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0 0 0.5rem;
   text-align: center;
 }
 
