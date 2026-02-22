@@ -26,6 +26,7 @@ const AdminContent = lazy(() => import('@/pages/admin/AdminContent'))
 const AdminStripe = lazy(() => import('@/pages/admin/AdminStripe'))
 const AdminImpersonate = lazy(() => import('@/pages/admin/AdminImpersonate'))
 const PWAInstallPage = lazy(() => import('@/pages/PWAInstallPage'))
+const CityPage = lazy(() => import('@/pages/cities/CityPage'))
 
 function PageFallback() {
   return <div className="loading-screen">Loading…</div>
@@ -55,10 +56,6 @@ function AppRoutes() {
           }
         >
           <Route index element={<Home />} />
-          <Route path="phuket" element={<Home city="phuket" />} />
-          <Route path="bangkok" element={<Home city="bangkok" />} />
-          <Route path="pattaya" element={<Home city="pattaya" />} />
-          <Route path="chiang-mai" element={<Home city="chiang-mai" />} />
           <Route path="swipe" element={<Swipe />} />
           <Route path="premium" element={<Premium />} />
           <Route path="pricing" element={<Pricing />} />
@@ -66,6 +63,7 @@ function AppRoutes() {
           <Route path="profile" element={<Profile />} />
           <Route path="unlocked-profiles" element={<UnlockedProfiles />} />
           <Route path="faq" element={<FAQ />} />
+          <Route path=":city" element={<CityPage />} />
         </Route>
         <Route
           path="/admin"

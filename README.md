@@ -162,7 +162,7 @@ If checkout “just loads” on phone: verify (1) `create-checkout` is deployed 
 - **Single-profile unlock:** UnlockModal + useUniversalBuy; success/refund via stripe-webhook.
 - **Dashboard:** AI recommendations, nearby freelancers, **Referral** ("📱 Dela → 7d Gratis Premium!" copy link `?ref=user_id`), **Referral leaderboard** (top 10), NotificationBell, links.
 - **Referral:** Signup with `?ref=<user_id>` sets `referrer_id`; when referred user pays (Stripe), referrer gets +7 days Premium automatically (stripe-webhook). Dashboard shows share link and leaderboard.
-- **City routes:** `/phuket`, `/bangkok`, `/pattaya`, `/chiang-mai` show Home filtered by city (get_therapists_visible). **Sitemap:** `public/sitemap.xml` with base + 4 cities; hreflang en/th/sv in index.
+- **City routes (18 turistorter):** En **CityPage** (`src/pages/cities/CityPage.tsx`) täcker alla städer via route `/:city`. Städer: phuket, bangkok, pattaya, chiang-mai, koh-samui, koh-tao, koh-phangan, krabi, ao-nang, phi-phi, railay, hua-hin, karon, kata, mai-khao, jomtien, nimmanhaemin, chaweng. Konfiguration i `src/lib/cityConfig.ts`. **Sitemap:** `public/sitemap.xml` med alla city-URL:er. **Search Console:** Se `SEARCH_CONSOLE_INDEXING.md` för request-indexering.
 - **A/B:** Exit popup 12h price: 50% see ฿99, 50% see ฿79 (use `VITE_STRIPE_UNLIMITED_12H_79` for B). Stored in `ab_tests`.
 - **Gamification:** Swipe streaks 1–5 days unlock badges; leaderboard by referrals_count.
 - **Profile:** Tabs (Bilder, Location, Bio, Priser, Services); Thailand LocationSelector, MapButton.
@@ -247,6 +247,7 @@ Targets for mobile and PC: Initial load &lt; 3 s; cache hit &lt; 0.5 s; push rea
 
 - **`IMPLEMENTATION_GUIDE.md`** – Error Boundaries, Offline Mode (IndexedDB), Push ("Ny like!"), Lazy Loading; kod och filstruktur.
 - **`TESTING_CHECKLIST.md`** – Komplett testguide för error boundaries, offline, push, lazy loading, performance 4G.
+- **`SEARCH_CONSOLE_INDEXING.md`** – Alla city-URL:er för Google Search Console (Request Indexing) + sitemap.
 - **`LOVABLE_IMPLEMENTATION.md`** – Step-by-step for Lovable: migrations 18–19, env, test checklist, PC + mobile.
 - `OPTIMIZATION_SUMMARY.md` – Performance/SEO/CRO
 - `VERIFICATION_CHECKLIST.md` – Deployment checklist
