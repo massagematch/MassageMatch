@@ -8,6 +8,7 @@ import { UnlockModal } from '@/components/UnlockModal'
 import { PaywallModal } from '@/components/PaywallModal'
 import { trackSwipe } from '@/lib/analytics'
 import { distanceKm } from '@/lib/geo'
+import { getCachedSwipeList, setCachedSwipeList, isOnline } from '@/lib/offlineCache'
 import './Swipe.css'
 
 const RADIUS_KM = 5
@@ -35,6 +36,19 @@ export default function Swipe() {
   useEffect(() => {
     setListLoading(true)
     const load = async () => {
+      const applyList = (list: SwipeCardProfile[]) => {
+        setTherapists(list)
+        setListLoading(false)
+      }
+      if (!isOnline()) {
+        const cached = await getCachedSwipeList()
+        if (cached?.length && Array.isArray(cached)) {
+          applyList(cached as SwipeCardProfile[])
+          return
+        }
+        setListLoading(false)
+        return
+      }
       if (isTherapist) {
         const { data } = await supabase
           .from('profiles')
@@ -53,8 +67,13 @@ export default function Swipe() {
           }
         })
         setTherapists(asCards)
+        setCachedSwipeList(asCards).catch(() => {})
         setListLoading(false)
         return
+      }
+      const cachedFirst = await getCachedSwipeList()
+      if (cachedFirst?.length && Array.isArray(cachedFirst)) {
+        applyList(cachedFirst as SwipeCardProfile[])
       }
       const { data } = await supabase.rpc('get_therapists_visible', {
         p_city: customerCity || null,
@@ -69,6 +88,7 @@ export default function Swipe() {
         return { ...t, images: Array.isArray(t.images) ? t.images : null, distance_km } as SwipeCardProfile
       })
       setTherapists(withDistance)
+      setCachedSwipeList(withDistance).catch(() => {})
       setListLoading(false)
     }
     load()
@@ -110,7 +130,12 @@ export default function Swipe() {
         return
       }
       trackSwipe(action, current.id)
-      const ok = await performSwipe(current.id, action)
+      const likeMeta = action === 'like' ? {
+        name: current.name,
+        distance_km: current.distance_km ?? undefined,
+        city: current.location_city ?? undefined,
+      } : undefined
+      const ok = await performSwipe(current.id, action, likeMeta)
       if (ok) setIndex((i) => i + 1)
     },
     [current, canSwipe, index, performSwipe, isTherapist]

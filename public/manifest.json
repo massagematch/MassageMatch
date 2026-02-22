@@ -1,21 +1,17 @@
 {
-  "name": "MassageMatch Thailand",
-  "short_name": "MassageMatch",
-  "description": "Connect with trusted therapists",
+  "name": "MassageMatch Thailand - Hitta terapeuter nära dig",
+  "short_name": "MassageTH",
+  "description": "Bästa massage-terapeuter i Thailand. Phuket, Bangkok, Pattaya. Push-notiser vid nya likes.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "theme_color": "#f59e0b",
+  "orientation": "portrait-primary",
+  "lang": "sv",
   "icons": [
-    {
-      "src": "/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+    { "src": "/icons/icon-72.png", "sizes": "72x72", "type": "image/png", "purpose": "badge" },
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ],
+  "categories": ["lifestyle", "travel", "health"]
 }

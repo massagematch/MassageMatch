@@ -43,7 +43,7 @@ Set all `VITE_*` used by the app, including:
 
 ---
 
-## 4. Test checklist (front + backend sync)
+## 5. Test checklist (front + backend sync) (front + backend sync)
 
 - [ ] **Register:** Age 18–100 required; [Läs regler] opens `/faq#legal`; referrer: open `/login?ref=<user_id>`, register → profile has referrer_id.
 - [ ] **Images:** Load &lt;1s; lazy loading; Supabase images use WebP params.
@@ -54,12 +54,12 @@ Set all `VITE_*` used by the app, including:
 - [ ] **Wording:** "freelancers" in Home, Dashboard, FAQ; no "support@" (all thaimassagematch@hotmail.com).
 - [ ] **Stripe/DB:** Payments fulfill plan; unlock creates row; referral +7d applied in webhook.
 - [ ] **Console:** 0 errors on main flows (login, swipe, pricing, dashboard).
-- [ ] **Mobile/PWA:** Install prompt; responsive; payment redirect works (no popup).
+- [ ] **Mobile/PWA:** PWAInstallBanner; /install med Android/iPhone-instruktioner; SW + push + offline.
 - [ ] **Lighthouse:** Aim 95+ Performance/Accessibility (run after deploy).
 
 ---
 
-## 5. Deploy
+## 6. Deploy
 
 1. Push to GitHub `main` (already done from Cursor).
 2. In Lovable: **Pull latest**.

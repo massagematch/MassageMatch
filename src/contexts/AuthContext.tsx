@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import type { Profile } from '@/lib/supabase'
 import { updateStreak } from '@/lib/gamification'
 import { identifyUser } from '@/lib/analytics'
+import { getCachedProfile, setCachedProfile, isOnline } from '@/lib/offlineCache'
 
 type AuthState = {
   user: User | null
@@ -56,12 +57,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null)
 
   const fetchProfile = useCallback(async (uid: string) => {
+    if (!isOnline()) {
+      const cached = await getCachedProfile(uid)
+      if (cached && typeof cached === 'object' && 'user_id' in cached) {
+        const p = cached as Profile
+        setProfile(p)
+        setFallbackProfile(p)
+        syncPremiumStorage(p)
+        setError(null)
+      } else {
+        setError('Offline. Connect to load profile.')
+      }
+      return
+    }
     const { data, error: e } = await supabase
       .from('profiles')
       .select('*')
       .eq('user_id', uid)
       .maybeSingle()
     if (e) {
+      const cached = await getCachedProfile(uid)
+      if (cached && typeof cached === 'object' && 'user_id' in cached) {
+        const p = cached as Profile
+        setProfile(p)
+        setFallbackProfile(p)
+        syncPremiumStorage(p)
+        setError(null)
+        return
+      }
       setError(e.message)
       return
     }
@@ -70,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfile(p)
       setFallbackProfile(p)
       syncPremiumStorage(p)
+      setCachedProfile(uid, p).catch(() => {})
     } else {
       const { data: inserted, error: insertErr } = await supabase
         .from('profiles')
@@ -84,6 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfile(p)
       setFallbackProfile(p)
       syncPremiumStorage(p)
+      setCachedProfile(uid, p).catch(() => {})
     }
   }, [])
 
@@ -167,8 +192,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }),
           timeoutPromise,
         ])
-          .catch((e) => {
-            if (e?.message === 'PROFILE_TIMEOUT') {
+          .catch(async (e) => {
+            if (e?.message === 'PROFILE_TIMEOUT' && session?.user?.id) {
+              const cached = await getCachedProfile(session.user.id)
+              if (cached && typeof cached === 'object' && 'user_id' in cached) {
+                const p = cached as Profile
+                setProfile(p)
+                setFallbackProfile(p)
+                syncPremiumStorage(p)
+                setError(null)
+                setupRealtime(session.user.id)
+                return
+              }
               setError('Connection slow. Refresh the page or try again.')
             } else {
               setError(e instanceof Error ? e.message : 'Could not load profile')

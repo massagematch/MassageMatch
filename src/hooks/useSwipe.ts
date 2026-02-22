@@ -4,13 +4,15 @@ import { supabase } from '@/lib/supabase'
 
 const EDGE_SWIPE_USE = 'swipe-use'
 
+export type SwipeLikeMeta = { name?: string; distance_km?: number; city?: string }
+
 export function useSwipe() {
-  const { user, refetchProfile } = useAuth()
+  const { user, profile, refetchProfile } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const performSwipe = useCallback(
-    async (therapistId: string, action: 'like' | 'pass') => {
+    async (therapistId: string, action: 'like' | 'pass', likeMeta?: SwipeLikeMeta) => {
       if (!user?.id) {
         setError('Not logged in')
         return false
@@ -27,6 +29,19 @@ export function useSwipe() {
         if (fnError) throw fnError
         if (data?.error) throw new Error(data.error)
         await refetchProfile()
+        if (action === 'like' && likeMeta && token) {
+          const name = likeMeta.name || (profile as { display_name?: string })?.display_name || 'Någon'
+          const dist = likeMeta.distance_km != null ? `${likeMeta.distance_km.toFixed(1)}km ` : ''
+          const city = likeMeta.city || 'Phuket'
+          supabase.functions.invoke('notify-push', {
+            body: {
+              target_user_id: therapistId,
+              title: 'Ny like!',
+              body: `${name} ${dist}${city}`.trim(),
+            },
+            headers: { Authorization: `Bearer ${token}` },
+          }).catch(() => {})
+        }
         return true
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : 'Swipe failed'
@@ -36,7 +51,7 @@ export function useSwipe() {
         setLoading(false)
       }
     },
-    [user?.id, refetchProfile]
+    [user?.id, profile, refetchProfile]
   )
 
   return { performSwipe, loading, error }

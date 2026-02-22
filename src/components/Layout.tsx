@@ -5,11 +5,13 @@ import { StreakBadge } from '@/components/StreakBadge'
 import { useRealtime } from '@/contexts/RealtimeContext'
 import { AdminFooterButton } from '@/components/AdminFooterButton'
 import { NotificationBell } from '@/components/NotificationBell'
+import { usePushSubscription } from '@/hooks/usePushSubscription'
 import './Layout.css'
 
 export default function Layout() {
   const { user, profile, signOut, error: authError } = useAuth()
   const { connected } = useRealtime()
+  usePushSubscription(user?.id)
 
   return (
     <div className="layout">

@@ -6,7 +6,7 @@ Production-ready Lovable + Supabase app: secure auth, persistent profiles/swipes
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Installation)
 
 ```bash
 npm install
@@ -14,6 +14,27 @@ cp .env.example .env
 # Edit .env: VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, Stripe price IDs
 npm run dev
 ```
+
+**Optional – quick setup script (Unix/macOS):**
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+Then edit `.env` and run migrations in Supabase (see below).
+
+---
+
+## 🧪 Testing Instructions
+
+- **Full checklist:** See **`TESTING_CHECKLIST.md`** to verify:
+  - Error boundaries (SV/TH/EN fallback)
+  - Offline mode (IndexedDB profile + swipe list)
+  - Push notifications ("Ny like!" delivery)
+  - Lazy loading (route chunks, bundle size)
+  - Performance on Thailand 4G (&lt; 3 s initial, &lt; 0.5 s cache hit)
+- **Unit tests:** `npm run test`
+- **Typecheck:** `npm run typecheck`
+- **Lint:** `npm run lint`
 
 ---
 
@@ -42,6 +63,7 @@ Apply these in your **Supabase SQL Editor** (or CLI) in numeric order:
 | 17 | `20260220000017_age_verification.sql` | Age verification (18+): `profiles.birth_year`; required on register, editable on Profile with Save |
 | 18 | `20260220000018_referral_referrer.sql` | Referral: `profiles.referrer_id`, `referral_days`; ?ref= on signup; referrer gets +7d when referred user pays |
 | 19 | `20260220000019_referral_leaderboard.sql` | `get_referral_leaderboard(lim)` RPC for Dashboard top 10 referrers |
+| 20 | `20260220000020_push_subscriptions.sql` | Push notifications: `push_subscriptions` (user_id, subscription jsonb) for "Ny like!" |
 
 **Important:** All migrations must be applied for frontend and Edge Functions to work without errors.
 
@@ -76,6 +98,7 @@ Deploy from `supabase/functions/`. Set secrets in Supabase Dashboard → Edge Fu
 | `ai-recommendations` | AI therapist recommendations | Optional OpenAI/key |
 | `chat-query` | Natural-language chat → therapist matches | Optional; uses profile bio/services/prices |
 | `apply-promo` | Therapist 3-month free code (NEWTHERAPIST90) | None; sets plan_expires, promo_used, ensures therapists row |
+| `notify-push` | Web Push "Ny like!" when someone likes you | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` (generate with `npx web-push generate-vapid-keys`) |
 
 **Deploy (CLI):**
 ```bash
@@ -85,6 +108,7 @@ supabase functions deploy validate-thailand-bounds
 supabase functions deploy ai-recommendations
 supabase functions deploy chat-query
 supabase functions deploy apply-promo
+supabase functions deploy notify-push
 ```
 
 ---
@@ -147,6 +171,7 @@ If checkout “just loads” on phone: verify (1) `create-checkout` is deployed 
   - **Adsterra** + **RichAds** popunder: injected in `index.html` only when `isPremium` is not true; cap **2 per day** each (localStorage date reset).
   - **HilltopAds:** Verification meta tag in `<head>` + TXT file in `public/`.
 - **CTA banner:** “Ingen reklam för 99 THB!” (Layout, free users only) → `/pricing`.
+- **PWA:** `public/manifest.json` (MassageTH); `public/sw.js` (offline + push); **PWAInstallBanner**; route **/install** (Android/iPhone-instruktioner). Ikoner: `public/icons/icon-72.png`, `icon-192.png`, `icon-512.png`.
 
 ---
 
@@ -201,8 +226,27 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'superadmin';
 
 ---
 
+## ⚡ Performance (Thailand 4G)
+
+Targets for mobile and PC: Initial load &lt; 3 s; cache hit &lt; 0.5 s; push real-time; zero crashes (Error Boundary). Lazy loading and IndexedDB cache optimize for Thailand 4G. Run Lighthouse after deploy (aim Performance &gt; 90).
+
+---
+
+## 🔧 Troubleshooting
+
+- **Connection slow** – Refresh; offline uses cached profile if available.
+- **Push not received** – Migration 20, notify-push deployed with VAPID keys, VITE_VAPID_PUBLIC_KEY in env, user allowed notifications.
+- **Offline cache empty** – Load profile/swipe once online first.
+- **Error Boundary** – Check console; fix bug and click "Försök igen".
+- **Lovable deploy fails** – Check VITE_* env; migrations 1–20; Edge Functions + secrets.
+- **Stripe not configured** – Set VITE_STRIPE_* price IDs in Lovable env.
+
+---
+
 ## 📚 Docs in Repo
 
+- **`IMPLEMENTATION_GUIDE.md`** – Error Boundaries, Offline Mode (IndexedDB), Push ("Ny like!"), Lazy Loading; kod och filstruktur.
+- **`TESTING_CHECKLIST.md`** – Komplett testguide för error boundaries, offline, push, lazy loading, performance 4G.
 - **`LOVABLE_IMPLEMENTATION.md`** – Step-by-step for Lovable: migrations 18–19, env, test checklist, PC + mobile.
 - `OPTIMIZATION_SUMMARY.md` – Performance/SEO/CRO
 - `VERIFICATION_CHECKLIST.md` – Deployment checklist
