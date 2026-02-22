@@ -34,7 +34,7 @@ export default function Layout() {
           {profile != null && (
             <>
               <span className="role-badge" title={`Role: ${profile.role}`}>
-                {profile.role}
+                {profile.role === 'therapist' ? 'therapist/freelance' : profile.role}
               </span>
               <span className="swipes" title="Swipes remaining">
                 {profile.swipes_remaining} swipes

@@ -127,11 +127,11 @@ export default function Pricing() {
 
       {role === 'therapist' && (
         <div className="pricing-section">
-          <h2>Therapist Plans</h2>
+          <h2>Therapist/Freelance Plans</h2>
           <PromoCodeInput onSuccess={refetchProfile} />
           <div className="plans-grid">
             <div className="plan-card">
-              <h3>Premium 1 Month</h3>
+              <h3>Therapist/Freelance Premium 1 Month</h3>
               <div className="plan-price">99 THB/mo</div>
               <p className="plan-desc">Toplist + search + swipe priority</p>
               <p className="plan-duration">Duration: 30 days</p>
@@ -146,7 +146,7 @@ export default function Pricing() {
               </button>
             </div>
             <div className="plan-card">
-              <h3>Premium 3 Month</h3>
+              <h3>Therapist/Freelance Premium 3 Months</h3>
               <div className="plan-price">269 THB/mo</div>
               <p className="plan-desc">Toplist + search + swipe priority</p>
               <p className="plan-duration">Duration: 90 days</p>

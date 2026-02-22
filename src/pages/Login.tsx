@@ -13,6 +13,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
+  const [agreedToRules, setAgreedToRules] = useState(false)
   const navigate = useNavigate()
 
   async function handleSubmit(e: React.FormEvent) {
@@ -35,6 +36,10 @@ export default function Login() {
     e.preventDefault()
     setError(null)
     setMessage(null)
+    if (showSignUp && !agreedToRules) {
+      setError('Please agree to the rules and FAQ to create an account.')
+      return
+    }
     setLoading(true)
     try {
       const { data, error: err } = await supabase.auth.signUp({ email, password })
@@ -73,7 +78,7 @@ export default function Login() {
     <div className="login-page">
       <div className="login-card">
         <h1>MassageMatch Thailand</h1>
-        <p className="subtitle">Connect with trusted therapists</p>
+        <p className="subtitle">Connect with trusted therapists/freelancers</p>
         {error && <div className="alert error">{error}</div>}
         {message && <div className="alert success">{message}</div>}
         {showSignUp && (
@@ -82,7 +87,7 @@ export default function Login() {
               <label>I am a:</label>
               <select value={role} onChange={(e) => setRole(e.target.value as typeof role)} className="role-select">
                 <option value="customer">Customer</option>
-                <option value="therapist">Therapist</option>
+                <option value="therapist">Therapist/Freelance</option>
                 <option value="salong">Salong</option>
               </select>
             </div>
@@ -109,7 +114,13 @@ export default function Login() {
             required
             autoComplete={showSignUp ? 'new-password' : 'current-password'}
           />
-          <button type="submit" disabled={loading} aria-busy={loading}>
+          {showSignUp && (
+          <label className="login-rules-check">
+            <input type="checkbox" checked={agreedToRules} onChange={(e) => setAgreedToRules(e.target.checked)} />
+            <span>I agree to the <a href="/faq#legal" target="_blank" rel="noopener noreferrer">rules &amp; FAQ</a></span>
+          </label>
+        )}
+        <button type="submit" disabled={loading} aria-busy={loading}>
             {loading ? (showSignUp ? 'Creating account…' : 'Signing in…') : showSignUp ? 'Sign up' : 'Sign in'}
           </button>
         </form>

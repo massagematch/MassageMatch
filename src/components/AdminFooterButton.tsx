@@ -54,7 +54,12 @@ export function AdminFooterButton() {
     <>
       <footer className="admin-footer">
         <div className="admin-footer-inner">
-          <span className="admin-footer-copy">© 2026 MassageMatch Thailand</span>
+          <span className="admin-footer-copy">
+          <a href="/faq#legal" className="admin-footer-link">FAQ &amp; Regler</a>
+          {' | '}
+          <a href="mailto:thaimassagematch@hotmail.com" className="admin-footer-link">thaimassagematch@hotmail.com</a>
+          {' · © 2026 MassageMatch Thailand'}
+        </span>
           <button
             type="button"
             className="admin-footer-btn"

@@ -33,3 +33,23 @@
   line-height: 1.6;
   color: var(--muted);
 }
+
+.faq-legal {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.faq-legal h2 {
+  margin: 0 0 1rem;
+  font-size: 1.25rem;
+}
+
+.faq-legal p, .faq-legal ol {
+  margin: 0 0 0.75rem;
+  line-height: 1.6;
+}
+
+.faq-legal a {
+  color: var(--accent);
+}

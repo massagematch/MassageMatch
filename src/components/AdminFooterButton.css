@@ -19,6 +19,16 @@
   color: var(--muted);
 }
 
+.admin-footer-link {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.admin-footer-link:hover {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
 .admin-footer-btn {
   padding: 0.25rem 0.5rem;
   font-size: 0.7rem;

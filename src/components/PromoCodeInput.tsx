@@ -41,7 +41,7 @@ export function PromoCodeInput({ onSuccess }: { onSuccess?: () => void }) {
   return (
     <div className="promo-section">
       <div className="promo-banner">
-        <strong>FREE 3-MONTH PROMO:</strong> Enter code <code>NEWTHERAPIST90</code>
+        <strong>Therapist/Freelance FREE 3 months:</strong> Enter code <code>NEWTHERAPIST90</code>. Timer on Profile; after expiry pay Premium to appear in swipe/search.
       </div>
       <div className="promo-input-group">
         <input

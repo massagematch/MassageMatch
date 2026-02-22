@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { useSocialValidation } from '@/hooks/useSocialValidation'
 import { LocationSelector, type LocationValue } from '@/components/LocationSelector'
 import { MapButton } from '@/components/MapButton'
+import { PlanTimer } from '@/components/PlanTimer'
 import { trackEvent } from '@/lib/analytics'
 import './Profile.css'
 
@@ -225,6 +226,15 @@ export default function Profile() {
     <div className="profile-page">
       <h1>Your Profile</h1>
       <p className="profile-subtitle">Edit your profile</p>
+      {(profile?.role === 'therapist' || profile?.role === 'salong') && (
+        <div className="profile-plan-timer">
+          <PlanTimer type="plan" />
+          <PlanTimer type="boost" />
+          {profile?.plan_expires && new Date(profile.plan_expires) <= new Date() && (
+            <p className="profile-expired-hint">Premium expired. You won&apos;t appear in swipe/search until you renew on <a href="/pricing">Pricing</a>.</p>
+          )}
+        </div>
+      )}
 
       <div className="profile-tabs">
         <button type="button" className={profileTab === 'images' ? 'active' : ''} onClick={() => setProfileTab('images')}>📸 Bilder</button>

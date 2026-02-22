@@ -56,14 +56,12 @@ export default function Swipe() {
         setListLoading(false)
         return
       }
-      let query = supabase
-        .from('therapists')
-        .select('id, name, image_url, images, bio, location_city, location_lat, location_lng, share_location, verified_photo')
-        .limit(50)
-      if (customerCity) query = query.eq('location_city', customerCity)
-      const { data } = await query
+      const { data } = await supabase.rpc('get_therapists_visible', {
+        p_city: customerCity || null,
+      })
       const rows = (data ?? []) as (SwipeCardProfile & { images?: unknown })[]
-      const withDistance = rows.map((t) => {
+      const limited = rows.slice(0, 50)
+      const withDistance = limited.map((t) => {
         let distance_km: number | null = null
         if (customerLat != null && customerLng != null && t.location_lat != null && t.location_lng != null) {
           distance_km = distanceKm(customerLat, customerLng, t.location_lat, t.location_lng)

@@ -21,12 +21,9 @@ export default function Home() {
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase
-        .from('therapists')
-        .select('id, name, image_url, location_city, verified_photo')
-        .not('image_url', 'is', null)
-        .limit(6)
-      setTopTherapists((data as TopTherapist[]) ?? [])
+      const { data } = await supabase.rpc('get_therapists_visible', { p_city: null })
+      const list = (data ?? []) as { id: string; name: string; image_url: string | null; location_city: string | null; verified_photo?: boolean }[]
+      setTopTherapists(list.filter((t) => t.image_url).slice(0, 6))
     }
     load()
   }, [])
@@ -41,7 +38,7 @@ export default function Home() {
 
       {topTherapists.length > 0 && (
         <section className="home-top-section">
-          <h2 className="home-top-title">Top therapists in Phuket</h2>
+          <h2 className="home-top-title">Top therapists/freelancers in Phuket</h2>
           <div className="home-top-grid">
             {topTherapists.map((t) => (
               <button
@@ -76,7 +73,7 @@ export default function Home() {
       <nav className="nav-cards">
         <Link to="/swipe" className="card">
           <span className="card-title">Swipe</span>
-          <span className="card-desc">Discover therapists</span>
+          <span className="card-desc">Discover therapists/freelancers</span>
         </Link>
         <Link to="/pricing" className="card accent">
           <span className="card-title">Pricing</span>
