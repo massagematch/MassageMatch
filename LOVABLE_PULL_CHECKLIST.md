@@ -2,6 +2,8 @@
 
 **Branch:** `main` (Lovable ska vara kopplad till denna branch)
 
+**För full synk front + backend utan fel:** Se **`LOVABLE_SYNC_CHECKLIST.md`** (migrations, Edge Functions, secrets, env, verifiering).
+
 **Viktigt:** Efter Pull latest i Lovable – bygg och deploya. Alla filer nedan måste finnas i repot som Lovable bygger från. Ändra inte bort felhantering eller optimeringar.
 
 ---

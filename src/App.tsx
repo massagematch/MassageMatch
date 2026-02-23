@@ -9,7 +9,9 @@ import PWAInstallBanner from '@/components/PWAInstallBanner'
 import { ChatBubble } from '@/components/ChatBubble'
 import { SEOHead } from '@/components/SEOHead'
 import { AdminRoute } from '@/components/AdminRoute'
+import { ROUTES } from '@/constants/routes'
 
+// ─── Lazy-loaded pages (see PROJECT_STRUCTURE.md for layout) ───
 const Login = lazy(() => import('@/pages/Login'))
 const Home = lazy(() => import('@/pages/Home'))
 const Swipe = lazy(() => import('@/pages/Swipe'))
@@ -26,6 +28,8 @@ const AdminContent = lazy(() => import('@/pages/admin/AdminContent'))
 const AdminStripe = lazy(() => import('@/pages/admin/AdminStripe'))
 const AdminImpersonate = lazy(() => import('@/pages/admin/AdminImpersonate'))
 const PWAInstallPage = lazy(() => import('@/pages/PWAInstallPage'))
+const Contact = lazy(() => import('@/pages/Contact'))
+const TopPage = lazy(() => import('@/pages/TopPage'))
 const CityPage = lazy(() => import('@/pages/cities/CityPage'))
 
 function PageFallback() {
@@ -35,7 +39,7 @@ function PageFallback() {
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
   if (loading) return <div className="loading-screen">Loading…</div>
-  if (!user) return <Navigate to="/login" replace />
+  if (!user) return <Navigate to={ROUTES.LOGIN} replace />
   return <>{children}</>
 }
 
@@ -43,10 +47,14 @@ function AppRoutes() {
   return (
     <Suspense fallback={<PageFallback />}>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/install" element={<PWAInstallPage />} />
+        {/* Public (no auth) */}
+        <Route path={ROUTES.LOGIN} element={<Login />} />
+        <Route path={ROUTES.INSTALL} element={<PWAInstallPage />} />
+        <Route path={ROUTES.CONTACT} element={<Contact />} />
+        <Route path={ROUTES.TOP} element={<TopPage />} />
+        {/* Protected (Layout + Realtime) */}
         <Route
-          path="/"
+          path={ROUTES.HOME}
           element={
             <ProtectedRoute>
               <RealtimeProvider>
@@ -65,8 +73,9 @@ function AppRoutes() {
           <Route path="faq" element={<FAQ />} />
           <Route path=":city" element={<CityPage />} />
         </Route>
+        {/* Admin */}
         <Route
-          path="/admin"
+          path={ROUTES.ADMIN}
           element={
             <AdminRoute>
               <AdminDashboard />
@@ -74,7 +83,7 @@ function AppRoutes() {
           }
         />
         <Route
-          path="/admin/users"
+          path={ROUTES.ADMIN_USERS}
           element={
             <AdminRoute>
               <AdminUsers />
@@ -82,7 +91,7 @@ function AppRoutes() {
           }
         />
         <Route
-          path="/admin/reviews"
+          path={ROUTES.ADMIN_REVIEWS}
           element={
             <AdminRoute>
               <AdminReviews />
@@ -90,7 +99,7 @@ function AppRoutes() {
           }
         />
         <Route
-          path="/admin/content"
+          path={ROUTES.ADMIN_CONTENT}
           element={
             <AdminRoute>
               <AdminContent />
@@ -98,7 +107,7 @@ function AppRoutes() {
           }
         />
         <Route
-          path="/admin/stripe"
+          path={ROUTES.ADMIN_STRIPE}
           element={
             <AdminRoute>
               <AdminStripe />
@@ -106,14 +115,14 @@ function AppRoutes() {
           }
         />
         <Route
-          path="/admin/impersonate/:userId"
+          path={`${ROUTES.ADMIN}/impersonate/:userId`}
           element={
             <AdminRoute>
               <AdminImpersonate />
             </AdminRoute>
           }
         />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
       </Routes>
     </Suspense>
   )
