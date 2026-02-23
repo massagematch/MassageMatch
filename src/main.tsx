@@ -1,4 +1,4 @@
-import { StrictMode, useEffect } from 'react'
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
@@ -6,8 +6,12 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { initAnalytics } from './lib/analytics'
 import './index.css'
 
-// Initialize analytics
-initAnalytics()
+// Initialize analytics (non-blocking; never break app)
+try {
+  initAnalytics()
+} catch {
+  // ignore
+}
 
 // Register service worker for PWA
 if ('serviceWorker' in navigator) {
@@ -19,12 +23,17 @@ if ('serviceWorker' in navigator) {
   })
 }
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <ErrorBoundary>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </ErrorBoundary>
-  </StrictMode>
-)
+const rootEl = document.getElementById('root')
+if (!rootEl) {
+  document.body.innerHTML = '<p>App failed to load. Refresh the page.</p>'
+} else {
+  createRoot(rootEl).render(
+    <StrictMode>
+      <ErrorBoundary>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </ErrorBoundary>
+    </StrictMode>
+  )
+}

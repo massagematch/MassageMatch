@@ -23,7 +23,7 @@ export function usePWAInstall() {
 
     const handler = (e: Event) => {
       e.preventDefault()
-      const ev = e as { prompt: () => Promise<void>; userChoice?: Promise<{ outcome: string }> }
+      const ev = e as unknown as { prompt: () => Promise<void>; userChoice?: Promise<{ outcome: string }> }
       if (typeof ev.prompt === 'function') setDeferredPrompt(ev)
     }
 

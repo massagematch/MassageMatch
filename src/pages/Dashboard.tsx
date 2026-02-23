@@ -61,8 +61,9 @@ export default function Dashboard() {
   useEffect(() => {
     if (userLat == null || userLng == null) return
     setNearbyLoading(true)
-    supabase
-      .rpc('nearby_therapists', { user_lat: userLat, user_lng: userLng, max_distance_km: 5, lim: 10 })
+    void Promise.resolve(
+      supabase.rpc('nearby_therapists', { user_lat: userLat, user_lng: userLng, max_distance_km: 5, lim: 10 })
+    )
       .then(({ data }) => {
         setNearbyList((data as NearbyTherapist[]) ?? [])
       })

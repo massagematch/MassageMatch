@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { PlanTimer } from '@/components/PlanTimer'
 import { PromoCodeInput } from '@/components/PromoCodeInput'
 import { supabase } from '@/lib/supabase'
-import { getVariant, trackConversion } from '@/lib/abTesting'
+import { getVariant } from '@/lib/abTesting'
 import { trackStripeFunnel } from '@/lib/analytics'
 import './Pricing.css'
 
@@ -26,6 +27,7 @@ const PRICE_IDS = {
 }
 
 export default function Pricing() {
+  const navigate = useNavigate()
   const { user, profile, refetchProfile } = useAuth()
   const [loading, setLoading] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -34,12 +36,16 @@ export default function Pricing() {
 
   useEffect(() => {
     if (user?.id) {
-      getVariant('pricing', user.id).then(setPricingVariant)
+      getVariant('pricing', user.id).then((v) => setPricingVariant((v === 'B' ? 'B' : 'A') as 'A' | 'B'))
     }
   }, [user?.id])
 
   async function handleCheckout(planType: string, priceId: string, therapistId?: string, salongId?: string) {
-    if (!priceId || !user) {
+    if (!user?.id) {
+      navigate('/login', { state: { returnTo: '/pricing' } })
+      return
+    }
+    if (!priceId) {
       setError('Checkout not configured')
       return
     }
@@ -70,15 +76,17 @@ export default function Pricing() {
       if (data?.error) throw new Error(data.error)
       else setError('No checkout URL returned')
     } catch (e: unknown) {
-      trackStripeFunnel('checkout_error', { plan_type: planType, error: e instanceof Error ? e.message : 'Unknown' })
-      setError(e instanceof Error ? e.message : 'Checkout failed')
+      const msg = e instanceof Error ? e.message : 'Checkout failed'
+      trackStripeFunnel('checkout_error', { plan_type: planType, error: msg })
+      if (msg === 'REGISTER_FIRST' || msg.includes('Unauthorized') || msg.includes('Register') || msg.includes('profile')) {
+        navigate('/login', { state: { returnTo: '/pricing' } })
+        return
+      }
+      setError(msg)
     } finally {
       setLoading(null)
     }
   }
-
-  const hasActivePlan = profile?.plan_expires ? new Date(profile.plan_expires) > new Date() : false
-  const hasActiveBoost = profile?.boost_expires ? new Date(profile.boost_expires) > new Date() : false
 
   return (
     <div className="pricing-page">

@@ -38,58 +38,60 @@ export default function Swipe() {
     const load = async () => {
       const applyList = (list: SwipeCardProfile[]) => {
         setTherapists(list)
-        setListLoading(false)
       }
-      if (!isOnline()) {
-        const cached = await getCachedSwipeList()
-        if (cached?.length && Array.isArray(cached)) {
-          applyList(cached as SwipeCardProfile[])
+      try {
+        if (!isOnline()) {
+          const cached = await getCachedSwipeList()
+          if (cached?.length && Array.isArray(cached)) {
+            applyList(cached as SwipeCardProfile[])
+            return
+          }
           return
         }
-        setListLoading(false)
-        return
-      }
-      if (isTherapist) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('user_id, display_name, customer_images, location_city')
-          .eq('role', 'customer')
-          .limit(50)
-        const rows = (data ?? []) as { user_id: string; display_name?: string | null; customer_images?: string[] | null; location_city?: string | null }[]
-        const asCards: SwipeCardProfile[] = rows.map((r) => {
-          const imgs = Array.isArray(r.customer_images) ? r.customer_images : []
-          return {
-            id: r.user_id,
-            name: r.display_name || 'Customer',
-            image_url: imgs[0] || null,
-            images: imgs.length > 0 ? imgs : null,
-            location_city: r.location_city || null,
-          }
-        })
-        setTherapists(asCards)
-        setCachedSwipeList(asCards).catch(() => {})
-        setListLoading(false)
-        return
-      }
-      const cachedFirst = await getCachedSwipeList()
-      if (cachedFirst?.length && Array.isArray(cachedFirst)) {
-        applyList(cachedFirst as SwipeCardProfile[])
-      }
-      const { data } = await supabase.rpc('get_therapists_visible', {
-        p_city: customerCity || null,
-      })
-      const rows = (data ?? []) as (SwipeCardProfile & { images?: unknown })[]
-      const limited = rows.slice(0, 50)
-      const withDistance = limited.map((t) => {
-        let distance_km: number | null = null
-        if (customerLat != null && customerLng != null && t.location_lat != null && t.location_lng != null) {
-          distance_km = distanceKm(customerLat, customerLng, t.location_lat, t.location_lng)
+        if (isTherapist) {
+          const { data } = await supabase
+            .from('profiles')
+            .select('user_id, display_name, customer_images, location_city')
+            .eq('role', 'customer')
+            .limit(50)
+          const rows = (data ?? []) as { user_id: string; display_name?: string | null; customer_images?: string[] | null; location_city?: string | null }[]
+          const asCards: SwipeCardProfile[] = rows.map((r) => {
+            const imgs = Array.isArray(r.customer_images) ? r.customer_images : []
+            return {
+              id: r.user_id,
+              name: r.display_name || 'Customer',
+              image_url: imgs[0] || null,
+              images: imgs.length > 0 ? imgs : null,
+              location_city: r.location_city || null,
+            }
+          })
+          setTherapists(asCards)
+          setCachedSwipeList(asCards).catch(() => {})
+          return
         }
-        return { ...t, images: Array.isArray(t.images) ? t.images : null, distance_km } as SwipeCardProfile
-      })
-      setTherapists(withDistance)
-      setCachedSwipeList(withDistance).catch(() => {})
-      setListLoading(false)
+        const cachedFirst = await getCachedSwipeList()
+        if (cachedFirst?.length && Array.isArray(cachedFirst)) {
+          applyList(cachedFirst as SwipeCardProfile[])
+        }
+        const { data } = await supabase.rpc('get_therapists_visible', {
+          p_city: customerCity || null,
+        })
+        const rows = (data ?? []) as (SwipeCardProfile & { images?: unknown })[]
+        const limited = rows.slice(0, 50)
+        const withDistance = limited.map((t) => {
+          let distance_km: number | null = null
+          if (customerLat != null && customerLng != null && t.location_lat != null && t.location_lng != null) {
+            distance_km = distanceKm(customerLat, customerLng, t.location_lat, t.location_lng)
+          }
+          return { ...t, images: Array.isArray(t.images) ? t.images : null, distance_km } as SwipeCardProfile
+        })
+        setTherapists(withDistance)
+        setCachedSwipeList(withDistance).catch(() => {})
+      } catch {
+        setTherapists([])
+      } finally {
+        setListLoading(false)
+      }
     }
     load()
   }, [customerCity, isTherapist])

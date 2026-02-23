@@ -26,7 +26,8 @@ export function OptimizedImage({ src, alt, width, height, className, lazy = true
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) {
+        const entry = entries[0]
+        if (entry?.isIntersecting) {
           setLoaded(true)
           observer.disconnect()
         }

@@ -21,12 +21,13 @@ export function NotificationBell() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (!user?.id) return
+    const userId = user?.id
+    if (!userId) return
     async function load() {
       const { data } = await supabase
         .from('notifications')
         .select('id, type, title, body, read, link, created_at')
-        .eq('user_id', user.id)
+        .eq('user_id', userId)
         .order('created_at', { ascending: false })
         .limit(20)
       setList((data as Notification[]) ?? [])
@@ -36,12 +37,13 @@ export function NotificationBell() {
   }, [user?.id])
 
   useEffect(() => {
-    if (!user?.id) return
+    const userId = user?.id
+    if (!userId) return
     const channel = supabase
       .channel('notifications')
       .on(
         'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${userId}` },
         (payload) => {
           setList((prev) => [payload.new as Notification, ...prev.slice(0, 19)])
         }
@@ -58,8 +60,9 @@ export function NotificationBell() {
   }
 
   async function markAllRead() {
-    if (!user?.id) return
-    await supabase.from('notifications').update({ read: true }).eq('user_id', user.id).eq('read', false)
+    const uid = user?.id
+    if (!uid) return
+    await supabase.from('notifications').update({ read: true }).eq('user_id', uid).eq('read', false)
     setList((prev) => prev.map((n) => ({ ...n, read: true })))
   }
 

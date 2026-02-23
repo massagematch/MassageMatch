@@ -29,8 +29,8 @@ function getLocale(): keyof typeof FALLBACK {
   return 'en'
 }
 
-export class ErrorBoundary extends React.Component<Props, { hasError: boolean }> {
-  state = { hasError: false }
+export class ErrorBoundary extends React.Component<Props, { hasError: boolean; retryKey: number }> {
+  state = { hasError: false, retryKey: 0 }
 
   static getDerivedStateFromError() {
     return { hasError: true }
@@ -38,6 +38,10 @@ export class ErrorBoundary extends React.Component<Props, { hasError: boolean }>
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     console.error('ErrorBoundary', error, info)
+  }
+
+  handleRetry = () => {
+    this.setState((s) => ({ hasError: false, retryKey: s.retryKey + 1 }))
   }
 
   render() {
@@ -52,7 +56,7 @@ export class ErrorBoundary extends React.Component<Props, { hasError: boolean }>
             <button
               type="button"
               className="error-fallback-btn"
-              onClick={() => this.setState({ hasError: false })}
+              onClick={this.handleRetry}
             >
               {t.retry}
             </button>
@@ -60,6 +64,6 @@ export class ErrorBoundary extends React.Component<Props, { hasError: boolean }>
         </div>
       )
     }
-    return this.props.children
+    return <React.Fragment key={this.state.retryKey}>{this.props.children}</React.Fragment>
   }
 }

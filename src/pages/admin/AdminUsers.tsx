@@ -8,6 +8,7 @@ import './AdminUsers.css'
 type UserWithProfile = Profile & {
   email?: string
   stripe_customer_id?: string
+  banned?: boolean
 }
 
 export default function AdminUsers() {

@@ -21,7 +21,7 @@ const BENEFITS = [
   'Top list priority',
 ]
 
-export function PaywallModal({ open, onClose, mode = 'signup' }: Props) {
+export function PaywallModal({ open, onClose, mode: _mode = 'signup' }: Props) {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { buyNow } = useUniversalBuy()
@@ -31,9 +31,14 @@ export function PaywallModal({ open, onClose, mode = 'signup' }: Props) {
   if (!open) return null
 
   async function handleUnlimited() {
-    if (!UNLIMITED_PRICE_ID || !user?.id) {
+    if (!UNLIMITED_PRICE_ID) {
       navigate('/pricing')
       onClose()
+      return
+    }
+    if (!user?.id) {
+      onClose()
+      navigate('/login', { state: { returnTo: '/pricing' } })
       return
     }
     setError(null)
@@ -46,7 +51,13 @@ export function PaywallModal({ open, onClose, mode = 'signup' }: Props) {
         cancel_url: window.location.href,
       })
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Checkout failed')
+      const msg = e instanceof Error ? e.message : 'Checkout failed'
+      if (msg === 'REGISTER_FIRST' || msg.includes('Unauthorized') || msg.includes('Register')) {
+        onClose()
+        navigate('/login', { state: { returnTo: '/pricing' } })
+        return
+      }
+      setError(msg)
     } finally {
       setLoading(false)
     }
@@ -80,10 +91,10 @@ export function PaywallModal({ open, onClose, mode = 'signup' }: Props) {
           <button
             type="button"
             className="paywall-btn paywall-btn-outline"
-            onClick={user?.id ? handleUnlimited : handleSignup}
+            onClick={handleUnlimited}
             disabled={loading}
           >
-            {loading ? 'Redirecting…' : '💎 Unlimited 12h ฿199'}
+            {loading ? 'Redirecting…' : user?.id ? '💎 Unlimited 12h ฿199' : '💎 Register first to buy'}
           </button>
         </div>
 

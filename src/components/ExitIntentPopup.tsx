@@ -20,7 +20,6 @@ export function ExitIntentPopup() {
   useEffect(() => {
     if (dismissed || !user || profile?.plan_expires) return // Don't show if already has plan
 
-    let mouseY = 0
     const handleMouseLeave = (e: MouseEvent) => {
       if (e.clientY < 10 && !show) {
         setShow(true)

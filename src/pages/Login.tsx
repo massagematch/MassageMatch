@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { LocationSelector, type LocationValue } from '@/components/LocationSelector'
 import './Login.css'
@@ -16,8 +16,10 @@ export default function Login() {
   const [agreedToRules, setAgreedToRules] = useState(false)
   const [age, setAge] = useState<number>(18)
   const [searchParams] = useSearchParams()
+  const routeLocation = useLocation()
   const navigate = useNavigate()
   const referrerId = searchParams.get('ref')?.trim() || null
+  const returnTo = (routeLocation.state as { returnTo?: string } | null)?.returnTo || '/'
 
   const currentYear = new Date().getFullYear()
   const ageOptions = Array.from({ length: 83 }, (_, i) => 18 + i)
@@ -30,7 +32,7 @@ export default function Login() {
     try {
       const { error: err } = await supabase.auth.signInWithPassword({ email, password })
       if (err) throw err
-      navigate('/', { replace: true })
+      navigate(returnTo, { replace: true })
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {
@@ -157,6 +159,11 @@ export default function Login() {
         >
           {showSignUp ? 'Already have an account? Sign in' : 'Create account'}
         </button>
+        <p className="login-footer">
+          <Link to="/top" className="link-rules">See top 10 freelancers</Link>
+          {' · '}
+          <Link to="/contact" className="link-rules">Contact us</Link>
+        </p>
       </div>
     </div>
   )

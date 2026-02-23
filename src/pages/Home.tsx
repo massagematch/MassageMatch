@@ -33,9 +33,13 @@ export default function Home({ city: citySlug }: HomeProps = {}) {
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase.rpc('get_therapists_visible', { p_city: cityName })
-      const list = (data ?? []) as { id: string; name: string; image_url: string | null; location_city: string | null; verified_photo?: boolean }[]
-      setTopTherapists(list.filter((t) => t.image_url).slice(0, 6))
+      try {
+        const { data } = await supabase.rpc('get_therapists_visible', { p_city: cityName })
+        const list = (data ?? []) as { id: string; name: string; image_url: string | null; location_city: string | null; verified_photo?: boolean }[]
+        setTopTherapists(list.filter((t) => t.image_url).slice(0, 6))
+      } catch {
+        setTopTherapists([])
+      }
     }
     load()
   }, [cityName])

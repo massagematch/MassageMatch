@@ -80,7 +80,7 @@ export function FAQSchemaMarkup({ data }: { data: FAQSchema }) {
 
 function injectSchema(schema: Record<string, unknown>) {
   const scriptId = `schema-${JSON.stringify(schema).slice(0, 20)}`
-  let script = document.getElementById(scriptId)
+  let script = document.getElementById(scriptId) as HTMLScriptElement | null
   if (!script) {
     script = document.createElement('script')
     script.id = scriptId

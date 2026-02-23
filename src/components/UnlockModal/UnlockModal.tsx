@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
-import { supabase } from '@/lib/supabase'
 import { useUniversalBuy } from '@/hooks/useUniversalBuy'
 import { getVariant } from '@/lib/abTesting'
 import { trackUnlockFunnel, trackUnlockRate } from '@/lib/analytics'

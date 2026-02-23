@@ -8,7 +8,7 @@ interface WhatsAppButtonProps {
 }
 
 export function WhatsAppButton({ phoneNumber, message, therapistName }: WhatsAppButtonProps) {
-  const [show, setShow] = useState(true)
+  const [show] = useState(true)
 
   if (!show || !phoneNumber) return null
 

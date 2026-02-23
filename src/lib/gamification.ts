@@ -61,7 +61,7 @@ export async function updateStreak(userId: string): Promise<number> {
   ]
   if (newStreak >= 1 && newStreak <= 5) {
     const badge = streakBadges[newStreak - 1]
-    await unlockBadge(userId, badge.id, badge.name, badge.description)
+    if (badge) await unlockBadge(userId, badge.id, badge.name, badge.description)
   }
   
   // Grant bonus swipe for daily login

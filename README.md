@@ -1,6 +1,6 @@
 # MassageMatch Thailand (Thai Massage Connect)
 
-Production-ready Lovable + Supabase app: secure auth, persistent profiles/swipes, realtime sync, Stripe pricing, freemium paywall, Tinder-style swipe, Thailand locations, single-profile unlock, ad monetization (Adsterra/RichAds/HilltopAds), and Super Admin dashboard.
+Production-ready Lovable + Supabase app: secure auth, persistent profiles/swipes, realtime sync, Stripe pricing, freemium paywall, Tinder-style swipe, Thailand locations, single-profile unlock, ad monetization (Adsterra/RichAds/HilltopAds/Adnium), and Super Admin dashboard.
 
 **Sync flow:** Cursor → GitHub → Lovable (Pull latest). Push to `main` triggers Lovable deploy when connected.
 
@@ -99,6 +99,11 @@ Deploy from `supabase/functions/`. Set secrets in Supabase Dashboard → Edge Fu
 | `chat-query` | Natural-language chat → therapist matches | Optional; uses profile bio/services/prices |
 | `apply-promo` | Therapist 3-month free code (NEWTHERAPIST90) | None; sets plan_expires, promo_used, ensures therapists row |
 | `notify-push` | Web Push "Ny like!" when someone likes you | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` (generate with `npx web-push generate-vapid-keys`) |
+| `send-welcome` / `send-register` | Welcome email on signup (Resend) | `RESEND_API_KEY`; FROM_EMAIL / TO_EMAIL optional |
+| `send-payment` | Premium/betalning bekräftelse (invoked from stripe-webhook) | Same Resend secrets |
+| `send-like` | "Ny like väntar!" to profile that was liked (invoked from swipe-use) | Same Resend secrets |
+| `send-match` | "GRATTIS! Ni har matchat" when mutual like (invoked from swipe-use) | Same Resend secrets |
+| `send-contact` | Contact form → email to thaimassagematch@hotmail.com | Same Resend secrets |
 
 **Deploy (CLI):**
 ```bash
@@ -109,7 +114,26 @@ supabase functions deploy ai-recommendations
 supabase functions deploy chat-query
 supabase functions deploy apply-promo
 supabase functions deploy notify-push
+supabase functions deploy send-welcome
+supabase functions deploy send-register
+supabase functions deploy send-payment
+supabase functions deploy send-like
+supabase functions deploy send-match
+supabase functions deploy send-contact
 ```
+
+---
+
+## 📧 Email System (Resend)
+
+- **Setup:** Get API key from [resend.com](https://resend.com) → Supabase Dashboard → Edge Functions → Secrets: `RESEND_API_KEY`. Optional: `FROM_EMAIL` (default `MassageMatch <noreply@massagematchthai.com>`), `TO_EMAIL` (default `thaimassagematch@hotmail.com`).
+- **Triggers (automatic):**
+  - **Registrering:** Login calls `send-welcome` after signup → välkommen-email till användaren.
+  - **Betalning:** `stripe-webhook` anropar `send-payment` efter lyckad checkout → Premium-bekräftelse till användaren + admin-notis till TO_EMAIL.
+  - **Like:** `swipe-use` anropar `send-like` när användaren swipar like → "Ny like väntar!" till profilen som gillades.
+  - **Match:** `swipe-use` upptäcker mutual like och anropar `send-match` → "GRATTIS! Ni har matchat – WhatsApp kontakt" till båda.
+- **Contact:** Route `/contact` (public). Formulär POST → `send-contact` Edge Function → email till thaimassagematch@hotmail.com.
+- **Monitor:** Supabase Logs → Edge Functions för email-leverans; kolla thaimassagematch@hotmail.com Inbox/Spam.
 
 ---
 
@@ -167,8 +191,9 @@ If checkout “just loads” on phone: verify (1) `create-checkout` is deployed 
 - **Gamification:** Swipe streaks 1–5 days unlock badges; leaderboard by referrals_count.
 - **Profile:** Tabs (Bilder, Location, Bio, Priser, Services); Thailand LocationSelector, MapButton.
 - **Admin:** Discrete footer button (opacity 40%), mini login modal, 30min session.
-- **Ads (free users only):**
+- **Ads (free users only; premium = inga annonser):**
   - **Adsterra** + **RichAds** popunder: injected in `index.html` only when `isPremium` is not true; cap **2 per day** each (localStorage date reset).
+  - **Adnium (4armn.com):** Adult CPM + Mainstream CPM; same premium check + 2/day cap. Script in `index.html`; `public/ads.txt` has both streams (10183 Adult, 11745 Mainstream). Adnium auto-switch by visitor (Phuket/locals → Adult; turister → Mainstream).
   - **HilltopAds:** Verification meta tag in `<head>` + TXT file in `public/`.
 - **CTA banner:** “Ingen reklam för 99 THB!” (Layout, free users only) → `/pricing`.
 - **PWA:** `public/manifest.json` (MassageTH); `public/sw.js` (offline + push); **PWAInstallBanner**; route **/install** (Android/iPhone-instruktioner). Ikoner: `public/icons/icon-72.png`, `icon-192.png`, `icon-512.png`.
@@ -183,7 +208,15 @@ If checkout “just loads” on phone: verify (1) `create-checkout` is deployed 
 
 ---
 
-## 📁 Ad Verification & Static Files
+## 📁 ads.txt & Ad Verification
+
+- **ads.txt (massagematchthai.com/ads.txt)**
+  - File: `public/ads.txt`. Required for CPM networks and higher RPM.
+  - **Adnium (4armn.com):** Both streams in ads.txt:
+    - `10183.xml.4armn.com, pubid=1002887, DIRECT` — Adult CPM (högre $ för Thailand, 18+ / natt).
+    - `11745.xml.4armn.com, pubid=1002887, DIRECT` — Mainstream CPM (säkert för turister, dag).
+  - **Lovable:** Public files → add/update `ads.txt` → Deploy. Verify: https://massagematchthai.com/ads.txt
+  - **Adnium Dashboard:** Add site massagematchthai.com, both streams active; approve within 24h. Revenue: Adult $1.5–4 CPM, Mainstream $0.8–2.5 CPM; total with Google + Adnium ≈ $2–5 RPM. Vid premiumköp visas inga annonser (Adsterra/RichAds/Adnium alla avstängda).
 
 - **HilltopAds**
   - Meta tag in `index.html`: `<meta name="hilltopads-verification" content="55b9384f668c04d9a74c">`
@@ -194,14 +227,16 @@ If checkout “just loads” on phone: verify (1) `create-checkout` is deployed 
 
 ## 🔐 Environment Variables
 
-**Client (e.g. Lovable / Vercel):**
+**Client (Lovable / Vercel) – endast dessa; inga hemligheter här (syns inte i inspekt/källkod):**
 - `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 - Stripe Price IDs: `VITE_STRIPE_UNLOCK_PROFILE`, `VITE_STRIPE_UNLIMITED_12H`, `VITE_STRIPE_THERAPIST_*`, `VITE_STRIPE_SALONG_*`, `VITE_STRIPE_PREMIUM_PRICE_ID`
-- `VITE_POSTHOG_KEY`, `VITE_POSTHOG_HOST` (optional)
+- `VITE_POSTHOG_KEY`, `VITE_POSTHOG_HOST`, `VITE_VAPID_PUBLIC_KEY` (optional)
 
-**Supabase Edge Function secrets:**
+**Supabase Edge Function secrets (aldrig i Lovable/frontend – inte synliga för publiken):**
 - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
-- `RESEND_API_KEY`, `APP_URL` (if using welcome emails)
+- `RESEND_API_KEY`; optional: `FROM_EMAIL`, `TO_EMAIL`, `APP_URL`
+
+Stripe Publishable Key (pk_live_...) får sättas i Lovable om någon integration kräver det; Secret Key (sk_live_...) ska **endast** vara i Supabase Secrets.
 
 See `.env.example` for a full list.
 
@@ -221,6 +256,8 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'superadmin';
 
 ## 🚀 Deployment (Lovable from GitHub)
 
+**Lovable: read `LOVABLE_PULL_CHECKLIST.md` after each Pull – it lists files that must stay (ErrorBoundary retry, checkout errors, Home/Swipe loading) so the site does not crash for users.**
+
 1. **Connect repo:** Lovable → GitHub → connect `massagematch/MassageMatch`, branch `main`.
 2. **Pull latest:** When credits allow, use “Pull latest” to sync Cursor/GitHub changes.
 3. **Backend:** Apply all migrations above to production Supabase; deploy Edge Functions; set secrets.
@@ -230,7 +267,7 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'superadmin';
 **Verification after deploy:**
 - https://massagematchthai.com/ee1c2622ae6de28571d0.txt → `55b9384f668c04d9a74c`
 - View page source → “hilltopads-verification” and “55b9384f668c04d9a74c”
-- Free user: Adsterra/RichAds popunder (max 2/day each). Premium: no popunder, no CTA banner.
+- Free user: Adsterra/RichAds/Adnium (max 2/day each). Premium: no ads, no CTA banner. ads.txt: https://massagematchthai.com/ads.txt
 
 ---
 
@@ -253,6 +290,7 @@ Targets for mobile and PC: Initial load &lt; 3 s; cache hit &lt; 0.5 s; push rea
 
 ## 📚 Docs in Repo
 
+- **`LOVABLE_PULL_CHECKLIST.md`** – **Lovable: använd denna.** Lista över filer att hämta och vad som MÅST implementeras (felhantering, ErrorBoundary retry, checkout-meddelanden, Home/Swipe try/catch). Kryssa av efter pull så att Lovable inte tar bort dessa ändringar.
 - **`IMPLEMENTATION_GUIDE.md`** – Error Boundaries, Offline Mode (IndexedDB), Push ("Ny like!"), Lazy Loading; kod och filstruktur.
 - **`TESTING_CHECKLIST.md`** – Komplett testguide för error boundaries, offline, push, lazy loading, performance 4G.
 - **`SEARCH_CONSOLE_INDEXING.md`** – Alla city-URL:er för Google Search Console (Request Indexing) + sitemap.

@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { distanceKm } from '@/lib/geo'
 import {
-  THAILAND_LOCATIONS,
   getRegions,
   getCities,
   getAreas,
