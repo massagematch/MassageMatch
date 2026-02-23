@@ -42,4 +42,4 @@ git push -u origin main
 
 - Don’t rename or delete the repo after connecting; that breaks sync.
 - Lovable only syncs the default branch (we use `main`).
-- To deploy the site, use Lovable’s deploy or connect the same repo to Vercel/Netlify.
+- To deploy the site, use Lovable’s deploy 

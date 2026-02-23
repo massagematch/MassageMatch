@@ -166,7 +166,7 @@ All payment clicks must send the user to Stripe Checkout and work reliably on ph
 
 **Lovable / production checklist:**
 1. **Deploy `create-checkout`** – Supabase Edge Functions → deploy `create-checkout`; set secret `STRIPE_SECRET_KEY`.
-2. **Set env vars** – In Lovable (or Vercel), set every Stripe Price ID you use:
+2. **Set env vars** – In Lovable, set every Stripe Price ID you use:
    - `VITE_STRIPE_UNLOCK_PROFILE`, `VITE_STRIPE_UNLIMITED_12H`, `VITE_STRIPE_UNLIMITED_12H_79` (optional, for A/B ฿79), `VITE_STRIPE_PREMIUM_PRICE_ID`
    - `VITE_STRIPE_THERAPIST_PREMIUM_1M`, `VITE_STRIPE_THERAPIST_PREMIUM_3M`, `VITE_STRIPE_BOOST_SWIPE_6H`, `VITE_STRIPE_BOOST_SEARCH_24H`
    - `VITE_STRIPE_SALONG_PREMIUM_1M`, `VITE_STRIPE_SALONG_TOPLIST_7D`
@@ -227,7 +227,7 @@ If checkout “just loads” on phone: verify (1) `create-checkout` is deployed 
 
 ## 🔐 Environment Variables
 
-**Client (Lovable / Vercel) – endast dessa; inga hemligheter här (syns inte i inspekt/källkod):**
+**Client (Lovable) – endast dessa; inga hemligheter här (syns inte i inspekt/källkod):**
 - `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`
 - Stripe Price IDs: `VITE_STRIPE_UNLOCK_PROFILE`, `VITE_STRIPE_UNLIMITED_12H`, `VITE_STRIPE_THERAPIST_*`, `VITE_STRIPE_SALONG_*`, `VITE_STRIPE_PREMIUM_PRICE_ID`
 - `VITE_POSTHOG_KEY`, `VITE_POSTHOG_HOST`, `VITE_VAPID_PUBLIC_KEY` (optional)
