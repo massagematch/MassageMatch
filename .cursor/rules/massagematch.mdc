@@ -1,0 +1,91 @@
+---
+description: MassageMatch Thailand project rules for all agents
+globs: ["**/*.ts", "**/*.tsx", "**/*.css"]
+alwaysApply: true
+---
+
+# MassageMatch Thailand – Agent Rules
+
+## Tech Stack
+- React 18 + TypeScript + Vite
+- Supabase (Auth, Database, Edge Functions, Realtime)
+- Stripe (Checkout Sessions via Edge Functions)
+- CSS Modules (no Tailwind – plain CSS files per component)
+
+## Architecture
+
+### Route Constants (MANDATORY)
+All navigation uses `ROUTES` from `src/constants/routes.ts`. NEVER hardcode paths like `"/login"` or `"/pricing"`. Always:
+```typescript
+import { ROUTES } from '@/constants/routes'
+navigate(ROUTES.LOGIN)
+<Link to={ROUTES.PRICING}>
+```
+
+### Component Structure
+- Pages in `src/pages/` with matching `.css` files
+- Shared components in `src/components/`
+- Hooks in `src/hooks/`
+- Utilities in `src/lib/`
+- Admin pages in `src/pages/admin/`
+
+### Global Components (rendered in App.tsx, NOT in Layout)
+These render on ALL pages including public landing:
+- `ExitIntentPopup` – only triggers on `/login`, uses `visibilitychange` + `mouseleave clientY <= 0`
+- `AdminFooterButton` – discreet footer with admin login modal
+- `WhatsAppButton`, `PWAInstallBanner`, `ChatBubble`, `SEOHead`
+
+### Layout.tsx (protected routes only)
+- Wraps `<Outlet />` in `<ErrorBoundary>` for per-route error isolation
+- Does NOT contain AdminFooterButton (that's global in App.tsx)
+
+## Error Handling Rules
+1. Every `useEffect` data fetch MUST be in `try/catch/finally`
+2. `finally` block MUST clear loading state (`setLoading(false)`)
+3. On error, set data to empty array/null – never leave users stuck on "Loading..."
+4. ErrorBoundary wraps Outlet in Layout for graceful degradation
+
+## Auth Guards for Checkout
+All purchase entry points MUST check `user?.id` before proceeding:
+```typescript
+if (!user?.id) {
+  navigate(ROUTES.LOGIN, { state: { returnTo: ROUTES.PRICING } })
+  return
+}
+```
+Buy buttons: `disabled={loading || !priceId || !user?.id}`
+
+## Supabase Patterns
+- Client: `import { supabase } from '@/lib/supabase'`
+- Session: `const { data: { session } } = await supabase.auth.getSession()`
+- Auth header: `headers: session?.access_token ? { Authorization: \`Bearer ${session.access_token}\` } : undefined`
+- Edge functions: `supabase.functions.invoke('function-name', { body, headers })`
+- RPCs: `supabase.rpc('rpc_name', { params })`
+- Admin check: `import { isSuperAdmin } from '@/lib/admin'`
+
+## Edge Functions (Deno)
+- Location: `supabase/functions/<name>/index.ts`
+- Shared: `supabase/functions/_shared/supabase.ts`
+- Always return CORS headers: `'Access-Control-Allow-Origin': '*'`
+- Always handle OPTIONS preflight
+- Always wrap in try/catch with proper status codes
+
+## Security
+- NEVER put secrets (STRIPE_SECRET_KEY, etc.) in frontend code
+- NEVER hardcode passwords in source files
+- Admin auth uses `isSuperAdmin()` check against profiles.role = 'superadmin'
+
+## File Naming
+- Components: PascalCase (`SwipeCard.tsx`)
+- Pages: PascalCase (`Dashboard.tsx`)
+- Hooks: camelCase with `use` prefix (`useSwipe.ts`)
+- Utils: camelCase (`analytics.ts`)
+- CSS: matching component name (`Dashboard.css`)
+- Constants: camelCase (`routes.ts`)
+
+## Key Files (DO NOT DELETE OR REWRITE)
+- `src/main.tsx` – root with analytics try/catch and #root fallback
+- `src/components/ErrorBoundary.tsx` – retry with retryKey remount
+- `src/components/Layout.tsx` – ErrorBoundary around Outlet
+- `src/hooks/useUniversalBuy.ts` – centralized checkout with error handling
+- `src/constants/routes.ts` – single source of truth for all paths

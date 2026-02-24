@@ -1,0 +1,58 @@
+---
+description: Supabase Edge Function patterns for MassageMatch
+globs: ["supabase/functions/**/*.ts"]
+---
+
+# Supabase Edge Functions – Rules
+
+## Runtime
+- Deno runtime (not Node.js)
+- Imports use URL-based ESM: `import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'`
+- Stripe: `import stripe from 'https://esm.sh/stripe@14?target=deno'`
+
+## Structure
+```typescript
+import { getSupabaseClient } from '../_shared/supabase.ts'
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: { 'Access-Control-Allow-Origin': '*' } })
+  }
+  try {
+    const supabase = getSupabaseClient(req)
+    // ... business logic
+    return new Response(JSON.stringify({ ok: true }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+    })
+  } catch (e) {
+    return new Response(
+      JSON.stringify({ error: e instanceof Error ? e.message : 'Internal error' }),
+      { status: 500, headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } }
+    )
+  }
+})
+```
+
+## Auth Pattern
+```typescript
+const { data: { user }, error: authError } = await supabase.auth.getUser(
+  req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
+)
+if (authError || !user) {
+  return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+}
+```
+
+## Secrets
+Access via `Deno.env.get('SECRET_NAME')`. Set in Supabase Dashboard → Edge Functions → Secrets.
+Required: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, RESEND_API_KEY
+
+## Shared Module
+`supabase/functions/_shared/supabase.ts` exports:
+- `getSupabaseClient(req)` – client with auth header forwarding
+- `getSupabaseService()` – service role client (for webhooks)
+
+## CORS
+EVERY response must include `'Access-Control-Allow-Origin': '*'` header.
+EVERY function must handle `OPTIONS` method for preflight.
