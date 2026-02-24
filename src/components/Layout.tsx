@@ -3,10 +3,10 @@ import { useAuth } from '@/contexts/AuthContext'
 import { AccessTimer } from '@/components/AccessTimer'
 import { StreakBadge } from '@/components/StreakBadge'
 import { useRealtime } from '@/contexts/RealtimeContext'
-import { AdminFooterButton } from '@/components/AdminFooterButton'
 import { NotificationBell } from '@/components/NotificationBell'
 import { usePushSubscription } from '@/hooks/usePushSubscription'
 import { ErrorBoundary } from '@/components/ErrorBoundary'
+import { ROUTES } from '@/constants/routes'
 import './Layout.css'
 
 export default function Layout() {
@@ -23,7 +23,7 @@ export default function Layout() {
         </div>
       )}
       {profile && !(profile.plan_expires ? new Date(profile.plan_expires) > new Date() : false) && (
-        <Link to="/pricing" className="ad-cta-banner">
+        <Link to={ROUTES.PRICING} className="ad-cta-banner">
           Ingen reklam för 99 THB! →
         </Link>
       )}
@@ -45,8 +45,8 @@ export default function Layout() {
             </>
           )}
           <span className="email">{user?.email}</span>
-          <Link to="/unlocked-profiles" className="btn-outline">Unlocked</Link>
-          <Link to="/profile" className="btn-outline">Profile</Link>
+          <Link to={ROUTES.UNLOCKED_PROFILES} className="btn-outline">Unlocked</Link>
+          <Link to={ROUTES.PROFILE} className="btn-outline">Profile</Link>
           <button type="button" onClick={() => signOut()} className="btn-outline">
             Sign out
           </button>
@@ -57,7 +57,6 @@ export default function Layout() {
           <Outlet />
         </ErrorBoundary>
       </main>
-      <AdminFooterButton />
     </div>
   )
 }

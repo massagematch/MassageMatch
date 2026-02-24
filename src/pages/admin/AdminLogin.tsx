@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { supabase } from '@/lib/supabase'
 import { isSuperAdmin } from '@/lib/admin'
 import './AdminLogin.css'
@@ -27,7 +28,7 @@ export default function AdminLogin() {
         throw new Error('Access denied. Super admin only.')
       }
       
-      navigate('/admin', { replace: true })
+      navigate(ROUTES.ADMIN, { replace: true })
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {

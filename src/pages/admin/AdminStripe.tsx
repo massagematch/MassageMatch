@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { supabase } from '@/lib/supabase'
 import { logAdminAction } from '@/lib/admin'
 import './AdminStripe.css'
@@ -93,7 +94,7 @@ export default function AdminStripe() {
     <div className="admin-stripe">
       <div className="admin-header">
         <h1>Stripe Dashboard</h1>
-        <Link to="/admin" className="btn-back">
+        <Link to={ROUTES.ADMIN} className="btn-back">
           ← Dashboard
         </Link>
       </div>

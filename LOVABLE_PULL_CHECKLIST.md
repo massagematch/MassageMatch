@@ -56,9 +56,11 @@ Dessa filer **måste** vara uppdaterade i Lovable så att användare inte får f
 - [ ] `src/pages/Contact.tsx` + `src/pages/Contact.css` – Kontaktsida (route `/contact`)
 - [ ] `src/pages/TopPage.tsx` + `src/pages/TopPage.css` – Publik topplista (route `/top`)
 - [ ] `src/pages/cities/CityPage.tsx` – Stadssida (route `/:city`)
-- [ ] `src/App.tsx` – routes `/contact`, `/top`, `/`, `/swipe`, `/pricing`, etc. Lazy imports för alla sidor. Använder `src/constants/routes.ts`.
-- [ ] `src/constants/routes.ts` – Route-konstanter (ROUTES.LOGIN, ROUTES.PRICING, etc.)
-- [ ] `src/components/Layout.tsx` – ErrorBoundary runt Outlet, länk "Contact" i header
+- [ ] `src/App.tsx` – routes `/contact`, `/top`, `/`, `/swipe`, `/pricing`, etc. Lazy imports för alla sidor. `AdminFooterButton` renderas **globalt här** (syns på ALLA sidor inkl. landningssidan). Använder `src/constants/routes.ts`.
+- [ ] `src/constants/routes.ts` – Route-konstanter (ROUTES.LOGIN, ROUTES.PRICING, etc.). **Alla** filer använder ROUTES – inga hardcodade sökvägar.
+- [ ] `src/components/Layout.tsx` – ErrorBoundary runt Outlet. **AdminFooterButton ska INTE finnas här** (renderas i App.tsx istället).
+- [ ] `src/components/AdminFooterButton.tsx` – Discreet footer med Admin-login; **ingen hårdkodad admin-lösenord** – användaren skriver in lösenord själv.
+- [ ] `src/components/ExitIntentPopup.tsx` – Popup **enbart på /login**; trigger: `visibilitychange` + `mouseleave clientY <= 0`; max 1 gång/session.
 - [ ] `src/pages/Login.tsx` – länkar "Contact us", "See top 10 freelancers" under formuläret
 
 ### Public & index

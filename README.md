@@ -256,7 +256,9 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'superadmin';
 
 ## 🚀 Deployment (Lovable from GitHub)
 
-**Lovable: använd `LOVABLE_SYNC_CHECKLIST.md` efter varje Pull.** Lovable ska **implementera** (ta koden och behålla den) – inte göra om. Utför steg för steg (A1→A4, B1→B3, C1→C2, D). Checklistan täcker: filer som måste finnas kvar, migrations, Edge Functions, secrets, env, verifiering.
+**Lovable: använd `LOVABLE_SYNC_CHECKLIST.md` efter varje Pull.** Lovable ska **implementera** (ta koden och behålla den) – inte göra om. Utför steg för steg (A1→A5, B1→B3, C1→C2, D). Checklistan täcker: filer som måste finnas kvar, migrations, Edge Functions, secrets, env, verifiering.
+
+**OBS:** `AdminFooterButton` renderas i `App.tsx` (globalt) – **inte** i Layout.tsx. Alla route-sökvägar använder `ROUTES` från `src/constants/routes.ts` – inga hardcodade strängar.
 
 1. **Connect repo:** Lovable → GitHub → connect `massagematch/MassageMatch`, branch `main`.
 2. **Pull latest:** When credits allow, use “Pull latest” to sync Cursor/GitHub changes.

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams, Navigate } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { supabase } from '@/lib/supabase'
 import { OptimizedImage } from '@/components/OptimizedImage'
 import { PaywallModal } from '@/components/PaywallModal'
@@ -52,7 +53,7 @@ export default function CityPage() {
   }, [data?.cityName])
 
   if (!data) {
-    return <Navigate to="/" replace />
+    return <Navigate to={ROUTES.HOME} replace />
   }
 
   return (
@@ -104,15 +105,15 @@ export default function CityPage() {
       )}
 
       <div className="city-page-cta">
-        <Link to="/swipe" className="city-page-cta-btn">
+        <Link to={ROUTES.SWIPE} className="city-page-cta-btn">
           Swipa freelancers i {data.cityName}
         </Link>
       </div>
 
       <nav className="city-page-nav">
-        <Link to="/" className="city-page-nav-link">Hem</Link>
-        <Link to="/pricing" className="city-page-nav-link">Priser</Link>
-        <Link to="/dashboard" className="city-page-nav-link">Dashboard</Link>
+        <Link to={ROUTES.HOME} className="city-page-nav-link">Hem</Link>
+        <Link to={ROUTES.PRICING} className="city-page-nav-link">Priser</Link>
+        <Link to={ROUTES.DASHBOARD} className="city-page-nav-link">Dashboard</Link>
       </nav>
 
       <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} mode="signup" />

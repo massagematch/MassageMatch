@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import PWAInstallBanner from '@/components/PWAInstallBanner'
 import './PWAInstallPage.css'
 
@@ -31,7 +32,7 @@ export default function PWAInstallPage() {
           </div>
         </section>
 
-        <Link to="/" className="pwa-install-page-cta">
+        <Link to={ROUTES.HOME} className="pwa-install-page-cta">
           Starta App
         </Link>
       </div>

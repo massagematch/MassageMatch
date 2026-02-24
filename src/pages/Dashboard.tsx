@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { OptimizedImage } from '@/components/OptimizedImage'
@@ -133,7 +134,7 @@ export default function Dashboard() {
           <p className="section-desc">{aiMessage}</p>
           <div className="therapist-cards">
             {aiList.slice(0, 5).map((t) => (
-              <Link key={t.id} to={`/swipe`} className="therapist-card">
+              <Link key={t.id} to={ROUTES.SWIPE} className="therapist-card">
                 <OptimizedImage src={t.image_url} alt={t.name} className="card-img" lazy />
                 <div className="card-info">
                   <span className="card-name">{t.name}</span>
@@ -158,7 +159,7 @@ export default function Dashboard() {
           ) : (
             <div className="therapist-cards">
               {nearbyList.map((t) => (
-                <Link key={t.id} to="/swipe" className="therapist-card">
+                <Link key={t.id} to={ROUTES.SWIPE} className="therapist-card">
                   <OptimizedImage src={t.image_url} alt={t.name} className="card-img" lazy />
                   <div className="card-info">
                     <span className="card-name">{t.name}</span>

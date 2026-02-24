@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { OptimizedImage } from '@/components/OptimizedImage'
@@ -87,15 +88,15 @@ export default function Home({ city: citySlug }: HomeProps = {}) {
       )}
 
       <nav className="nav-cards">
-        <Link to="/swipe" className="card">
+        <Link to={ROUTES.SWIPE} className="card">
           <span className="card-title">Swipe</span>
           <span className="card-desc">Discover freelancers</span>
         </Link>
-        <Link to="/pricing" className="card accent">
+        <Link to={ROUTES.PRICING} className="card accent">
           <span className="card-title">Pricing</span>
           <span className="card-desc">View plans & upgrades</span>
         </Link>
-        <Link to="/dashboard" className="card">
+        <Link to={ROUTES.DASHBOARD} className="card">
           <span className="card-title">Dashboard</span>
           <span className="card-desc">Metrics & settings</span>
         </Link>

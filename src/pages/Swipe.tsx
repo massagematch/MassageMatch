@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { useAuth } from '@/contexts/AuthContext'
 import { useSwipe } from '@/hooks/useSwipe'
 import { supabase } from '@/lib/supabase'
@@ -178,7 +179,7 @@ export default function Swipe() {
     return (
       <div className="swipe-page swipe-page-full">
         <p className="muted">{isTherapist ? 'No customers yet. Customers add photos in Profile → Bilder.' : 'No therapists in this area.'}</p>
-        <Link to="/">Back to home</Link>
+        <Link to={ROUTES.HOME}>Back to home</Link>
       </div>
     )
   }
@@ -187,7 +188,7 @@ export default function Swipe() {
     return (
       <div className="swipe-page swipe-page-full">
         <p>No more therapists right now.</p>
-        <Link to="/">Back to home</Link>
+        <Link to={ROUTES.HOME}>Back to home</Link>
       </div>
     )
   }
@@ -251,7 +252,7 @@ export default function Swipe() {
           <>
             <span>{profile?.swipes_remaining ?? 0} swipes left</span>
             {(profile?.swipes_remaining ?? 0) <= 0 && (
-              <Link to="/pricing" className="link">Get more</Link>
+              <Link to={ROUTES.PRICING} className="link">Get more</Link>
             )}
           </>
         )}

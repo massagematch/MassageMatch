@@ -6,6 +6,7 @@ import { LocationSelector, type LocationValue } from '@/components/LocationSelec
 import { MapButton } from '@/components/MapButton'
 import { PlanTimer } from '@/components/PlanTimer'
 import { trackEvent } from '@/lib/analytics'
+import { ROUTES } from '@/constants/routes'
 import './Profile.css'
 
 type SocialLinks = {
@@ -243,7 +244,7 @@ export default function Profile() {
           <PlanTimer type="plan" />
           <PlanTimer type="boost" />
           {profile?.plan_expires && new Date(profile.plan_expires) <= new Date() && (
-            <p className="profile-expired-hint">Premium expired. You won&apos;t appear in swipe/search until you renew on <a href="/pricing">Pricing</a>.</p>
+            <p className="profile-expired-hint">Premium expired. You won&apos;t appear in swipe/search until you renew on <a href={ROUTES.PRICING}>Pricing</a>.</p>
           )}
         </div>
       )}

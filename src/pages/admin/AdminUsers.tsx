@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { supabase } from '@/lib/supabase'
 import { logAdminAction } from '@/lib/admin'
 import type { Profile } from '@/lib/supabase'
@@ -120,7 +121,7 @@ export default function AdminUsers() {
       <div className="admin-header">
         <h1>Users Management</h1>
         <div>
-          <Link to="/admin" className="btn-back">
+          <Link to={ROUTES.ADMIN} className="btn-back">
             ← Dashboard
           </Link>
         </div>
@@ -185,7 +186,7 @@ export default function AdminUsers() {
                   <td>
                     <div className="actions-cell">
                       <Link
-                        to={`/admin/impersonate/${user.user_id}`}
+                        to={ROUTES.ADMIN_IMPERSONATE(user.user_id)}
                         className="btn-action btn-impersonate"
                         title="Impersonate"
                       >

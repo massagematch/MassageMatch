@@ -21,7 +21,7 @@
 |-----|-------|----------|
 | `src/main.tsx` | Ja | Innehåller `try { initAnalytics() } catch` och `if (!rootEl)` innan `createRoot`. |
 | `src/components/ErrorBoundary.tsx` | Ja | Har `retryKey` i state och `key={this.state.retryKey}` på children (så "Försök igen" remountar). |
-| `src/components/Layout.tsx` | Ja | Innehåller `<ErrorBoundary><Outlet /></ErrorBoundary>` i `<main>`. |
+| `src/components/Layout.tsx` | Ja | Innehåller `<ErrorBoundary><Outlet /></ErrorBoundary>` i `<main>`. `AdminFooterButton` ska **INTE** renderas i Layout – den renderas globalt i `App.tsx`. |
 | `src/hooks/useUniversalBuy.ts` | Ja | Try/catch kring hela checkout; kastar "Network error. Please try again." vid nätverksfel, "Checkout failed. Please try again." vid andra fel. |
 | `src/pages/Home.tsx` | Ja | load() i useEffect är i try/catch; vid fel: `setTopTherapists([])`. |
 | `src/pages/Swipe.tsx` | Ja | load() har try/catch/finally; `setListLoading(false)` i finally; vid fel: `setTherapists([])`. |
@@ -30,7 +30,8 @@
 
 | Fil / Route | Krävs | Kontroll |
 |-------------|-------|----------|
-| `src/App.tsx` | Ja | Routes: `/login`, `/contact`, `/top`, `/`, `/swipe`, `/pricing`, `/dashboard`, `/profile`, `/unlocked-profiles`, `/faq`, `/:city`, `/admin` (+ underroutes). Lazy imports för alla sidor. |
+| `src/App.tsx` | Ja | Routes: `/login`, `/contact`, `/top`, `/`, `/swipe`, `/pricing`, `/dashboard`, `/profile`, `/unlocked-profiles`, `/faq`, `/:city`, `/admin` (+ underroutes). Lazy imports för alla sidor. `AdminFooterButton` renderas globalt (syns på ALLA sidor inkl. landningssidan). |
+| `src/constants/routes.ts` | Ja | Alla route-sökvägar definieras här. **INGA hardcodade sökvägar** i andra filer – alla importerar `ROUTES` från denna fil. |
 | `src/pages/Contact.tsx` + `Contact.css` | Ja | Route `/contact` – kontaktsida (e-postlänk, "Back to Login"). |
 | `src/pages/TopPage.tsx` + `TopPage.css` | Ja | Route `/top` – publik topplista (suddiga kort, klick → Login). |
 | `src/pages/cities/CityPage.tsx` | Ja | Route `/:city` – stadssida. |
@@ -71,7 +72,7 @@ Alla köpknappar måste kolla `user` innan checkout. Vid `!user` → redirect ti
 | `src/pages/UnlockedProfiles.tsx` | Ja | handleExtend: `if (!user?.id) navigate(ROUTES.LOGIN, ...)`. Extend-knapp: `disabled={... \|\| !user?.id}`. |
 | `src/components/PaywallModal/PaywallModal.tsx` | Ja | handleUnlimited: `if (!user?.id) navigate(ROUTES.LOGIN, { returnTo: ROUTES.PRICING })`. Vid !user visar "Register first to buy". |
 | `src/components/UnlockModal/UnlockModal.tsx` | Ja | handleUnlock: `if (!user?.id) navigate(ROUTES.LOGIN, { returnTo: ROUTES.SWIPE })`. Knapp: `disabled={... \|\| !user?.id}`. |
-| `src/components/ExitIntentPopup.tsx` | Ja | Visar "Claim"-knapp endast när `user` finns. Annars "Register below to get 20% off". |
+| `src/components/ExitIntentPopup.tsx` | Ja | Visar "Claim"-knapp endast när `user` finns. Annars "Register below to get 20% off". **Trigger:** `visibilitychange` (tabstängning) + `mouseleave` med `clientY <= 0`. Popup visas **enbart på `/login`-sidan** och max en gång per session (sessionStorage). |
 
 **Backend (create-checkout):** Kräver redan auth; returnerar 401 om ingen token. **stripe-webhook:** Aktiverar köp endast om `metadata.user_id` eller `client_reference_id` finns – annars kopplas inte köpet till någon användare.
 
@@ -168,5 +169,8 @@ Kryssa av efter varje Pull och efter deploy:
 3. **Glömma** att Supabase har migrations 1–20 och att `create-checkout` + `stripe-webhook` + `swipe-use` är deployade → 500/404 eller "function not found" vid köp/swipe.
 4. **Sätta hemligheter** (t.ex. STRIPE_SECRET_KEY) i Lovable istället för i Supabase → risk att de läcker i källkoden.
 5. **Sakna** `public/ads.txt` eller rätt `index.html` (premium-check) → fel annonser eller SEO.
+6. **Flytta AdminFooterButton** tillbaka till Layout → Admin-knappen försvinner från landningssidan. Den **ska** renderas i `App.tsx` (globalt, utanför router) så den syns på alla sidor inklusive `/login`.
+7. **Hardcoda sökvägar** istället för att använda `ROUTES` från `src/constants/routes.ts` → risk för typos och trasiga navigeringar vid route-ändring.
+8. **Ändra ExitIntentPopup-trigger** → popupen ska använda `visibilitychange` + `mouseleave clientY <= 0`, **inte** känsligare villkor som gör att den visas för ofta.
 
 **Efter varje Pull:** gå igenom A1–A5, kör D1, och kontrollera att B1–B2 är uppfyllda i Supabase. **Implementera – gör inte om.** Då synkar front och backend utan fel.

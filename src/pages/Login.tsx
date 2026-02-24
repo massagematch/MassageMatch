@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { supabase } from '@/lib/supabase'
 import { LocationSelector, type LocationValue } from '@/components/LocationSelector'
 import './Login.css'
@@ -160,9 +161,9 @@ export default function Login() {
           {showSignUp ? 'Already have an account? Sign in' : 'Create account'}
         </button>
         <p className="login-footer">
-          <Link to="/top" className="link-rules">See top 10 freelancers</Link>
+          <Link to={ROUTES.TOP} className="link-rules">See top 10 freelancers</Link>
           {' · '}
-          <Link to="/contact" className="link-rules">Contact us</Link>
+          <Link to={ROUTES.CONTACT} className="link-rules">Contact us</Link>
         </p>
       </div>
     </div>

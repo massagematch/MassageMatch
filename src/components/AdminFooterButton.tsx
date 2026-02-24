@@ -2,10 +2,10 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { isSuperAdmin } from '@/lib/admin'
+import { ROUTES } from '@/constants/routes'
 import './AdminFooterButton.css'
 
 const ADMIN_EMAIL = 'thaimassagematch@hotmail.com'
-const ADMIN_PASSWORD = 'qhiguaiN10'
 const ADMIN_TOKEN_KEY = 'adminToken'
 const ADMIN_SESSION_MIN = 30
 
@@ -30,7 +30,7 @@ export function AdminFooterButton() {
     try {
       const { error: err } = await supabase.auth.signInWithPassword({
         email: email.trim() || ADMIN_EMAIL,
-        password: password || ADMIN_PASSWORD,
+        password,
       })
       if (err) throw err
 
@@ -42,7 +42,7 @@ export function AdminFooterButton() {
 
       setAdminToken()
       setAdminOpen(false)
-      navigate('/admin', { replace: true })
+      navigate(ROUTES.ADMIN, { replace: true })
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login failed')
     } finally {
@@ -79,8 +79,8 @@ export function AdminFooterButton() {
             <input
               type="email"
               className="admin-modal-input"
-              placeholder="Admin email"
-              value={email || ADMIN_EMAIL}
+              placeholder={ADMIN_EMAIL}
+              value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
             />

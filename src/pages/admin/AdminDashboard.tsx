@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { useAuth } from '@/contexts/AuthContext'
 import { getAdminStats, logAdminAction, type AdminStats } from '@/lib/admin'
 import { supabase } from '@/lib/supabase'
@@ -102,7 +103,7 @@ export default function AdminDashboard() {
         <h1>Super Admin Dashboard</h1>
         <div className="admin-user">
           <span>{user?.email}</span>
-          <Link to="/" className="btn-exit">Exit Admin</Link>
+          <Link to={ROUTES.HOME} className="btn-exit">Exit Admin</Link>
         </div>
       </div>
 
@@ -127,7 +128,7 @@ export default function AdminDashboard() {
           <div className="stat-label">Pending Reviews</div>
           <div className="stat-value">{stats?.pending_reviews ?? 0}</div>
           {stats && stats.pending_reviews > 0 && (
-            <Link to="/admin/reviews" className="stat-link">Review now →</Link>
+            <Link to={ROUTES.ADMIN_REVIEWS} className="stat-link">Review now →</Link>
           )}
         </div>
         <div className="stat-card">
@@ -196,22 +197,22 @@ export default function AdminDashboard() {
       </div>
 
       <div className="admin-nav">
-        <Link to="/admin/users" className="nav-card">
+        <Link to={ROUTES.ADMIN_USERS} className="nav-card">
           <span className="nav-icon">👥</span>
           <span className="nav-title">Users</span>
           <span className="nav-desc">Manage all users</span>
         </Link>
-        <Link to="/admin/reviews" className="nav-card">
+        <Link to={ROUTES.ADMIN_REVIEWS} className="nav-card">
           <span className="nav-icon">⭐</span>
           <span className="nav-title">Reviews</span>
           <span className="nav-desc">Moderate reviews</span>
         </Link>
-        <Link to="/admin/content" className="nav-card">
+        <Link to={ROUTES.ADMIN_CONTENT} className="nav-card">
           <span className="nav-icon">📝</span>
           <span className="nav-title">Content</span>
           <span className="nav-desc">Therapists & discounts</span>
         </Link>
-        <Link to="/admin/stripe" className="nav-card">
+        <Link to={ROUTES.ADMIN_STRIPE} className="nav-card">
           <span className="nav-icon">💰</span>
           <span className="nav-title">Stripe</span>
           <span className="nav-desc">Payments & revenue</span>

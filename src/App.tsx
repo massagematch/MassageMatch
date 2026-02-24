@@ -9,6 +9,7 @@ import PWAInstallBanner from '@/components/PWAInstallBanner'
 import { ChatBubble } from '@/components/ChatBubble'
 import { SEOHead } from '@/components/SEOHead'
 import { AdminRoute } from '@/components/AdminRoute'
+import { AdminFooterButton } from '@/components/AdminFooterButton'
 import { ROUTES } from '@/constants/routes'
 
 // ─── Lazy-loaded pages (see PROJECT_STRUCTURE.md for layout) ───
@@ -137,6 +138,7 @@ export default function App() {
       <WhatsAppButton />
       <PWAInstallBanner />
       <ChatBubble />
+      <AdminFooterButton />
     </AuthProvider>
   )
 }

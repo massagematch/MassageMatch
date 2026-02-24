@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { supabase } from '@/lib/supabase'
 import { logAdminAction } from '@/lib/admin'
 import type { Profile } from '@/lib/supabase'
@@ -37,7 +38,7 @@ export default function AdminImpersonate() {
 
   async function handleExit() {
     await logAdminAction('exit_impersonation', 'profile', userId)
-    navigate('/admin/users')
+    navigate(ROUTES.ADMIN_USERS)
   }
 
   if (loading) {
@@ -48,7 +49,7 @@ export default function AdminImpersonate() {
     return (
       <div className="admin-error">
         <p>User not found</p>
-        <button type="button" onClick={() => navigate('/admin/users')} className="btn-back">
+        <button type="button" onClick={() => navigate(ROUTES.ADMIN_USERS)} className="btn-back">
           Back to Users
         </button>
       </div>

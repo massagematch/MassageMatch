@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ROUTES } from '@/constants/routes'
 import { supabase } from '@/lib/supabase'
 import { logAdminAction } from '@/lib/admin'
 import './AdminContent.css'
@@ -131,7 +132,7 @@ export default function AdminContent() {
     <div className="admin-content">
       <div className="admin-header">
         <h1>Content Management</h1>
-        <Link to="/admin" className="btn-back">
+        <Link to={ROUTES.ADMIN} className="btn-back">
           ← Dashboard
         </Link>
       </div>
