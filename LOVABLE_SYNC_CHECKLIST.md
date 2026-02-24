@@ -1,6 +1,15 @@
 # Lovable: Checklista så frontend och backend synkar utan fel
 
-**Använd denna checklista varje gång efter "Pull latest" i Lovable.** Om något av detta saknas eller har tagits bort får användare fel eller sidan fungerar inte.
+---
+
+## ⚠️ INSTRUKTION FÖR LOVABLE – LÄS FÖRST
+
+**Lovable ska IMPLEMENTERA – inte göra om.**
+
+- **Implementera** = ta koden från GitHub och behålla den som den är. Utför punkt för punkt.
+- **Göra om** = skriva ny kod, ändra struktur, ta bort eller ersätta filer. Det ska Lovable **inte** göra.
+
+**Arbeta igenom checklistan steg för steg, en punkt i taget (A1 → A2 → A3 → A4 → B1 → B2 → B3 → C1 → C2 → D).** Kryssa av varje punkt när den är klar. Hoppa inte över steg. Om något av detta saknas eller har tagits bort får användare fel eller sidan fungerar inte.
 
 ---
 
@@ -22,8 +31,8 @@
 | Fil / Route | Krävs | Kontroll |
 |-------------|-------|----------|
 | `src/App.tsx` | Ja | Routes: `/login`, `/contact`, `/top`, `/`, `/swipe`, `/pricing`, `/dashboard`, `/profile`, `/unlocked-profiles`, `/faq`, `/:city`, `/admin` (+ underroutes). Lazy imports för alla sidor. |
-| `src/pages/Contact.tsx` + `Contact.css` | Ja | Route `/contact` – kontaktformulär. |
-| `src/pages/TopPage.tsx` (+ CSS) | Ja | Route `/top` – publik topplista. |
+| `src/pages/Contact.tsx` + `Contact.css` | Ja | Route `/contact` – kontaktsida (e-postlänk, "Back to Login"). |
+| `src/pages/TopPage.tsx` + `TopPage.css` | Ja | Route `/top` – publik topplista (suddiga kort, klick → Login). |
 | `src/pages/cities/CityPage.tsx` | Ja | Route `/:city` – stadssida. |
 
 ### A3. Public (annars fel på ads / SEO)
@@ -144,4 +153,4 @@ Kryssa av efter varje Pull och efter deploy:
 3. **Sätta hemligheter** (t.ex. STRIPE_SECRET_KEY) i Lovable istället för i Supabase → risk att de läcker i källkoden.
 4. **Sakna** `public/ads.txt` eller rätt `index.html` (premium-check) → fel annonser eller SEO.
 
-**Efter varje Pull:** gå igenom A1, kör D1, och kontrollera att B1–B2 är uppfyllda i Supabase. Då synkar front och backend utan fel.
+**Efter varje Pull:** gå igenom A1–A4, kör D1, och kontrollera att B1–B2 är uppfyllda i Supabase. **Implementera – gör inte om.** Då synkar front och backend utan fel.

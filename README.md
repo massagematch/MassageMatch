@@ -256,7 +256,7 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'superadmin';
 
 ## 🚀 Deployment (Lovable from GitHub)
 
-**Lovable: använd `LOVABLE_SYNC_CHECKLIST.md` efter varje Pull** – checklista så frontend och backend synkar utan fel (filer som måste finnas kvar, migrations, Edge Functions, secrets, env, verifiering).
+**Lovable: använd `LOVABLE_SYNC_CHECKLIST.md` efter varje Pull.** Lovable ska **implementera** (ta koden och behålla den) – inte göra om. Utför steg för steg (A1→A4, B1→B3, C1→C2, D). Checklistan täcker: filer som måste finnas kvar, migrations, Edge Functions, secrets, env, verifiering.
 
 1. **Connect repo:** Lovable → GitHub → connect `massagematch/MassageMatch`, branch `main`.
 2. **Pull latest:** When credits allow, use “Pull latest” to sync Cursor/GitHub changes.
@@ -296,8 +296,8 @@ Targets for mobile and PC: Initial load &lt; 3 s; cache hit &lt; 0.5 s; push rea
 
 ## 📚 Docs in Repo
 
-- **`LOVABLE_SYNC_CHECKLIST.md`** – **Lovable: huvudchecklista.** Frontend-filer som måste finnas kvar, backend (migrations, Edge Functions, secrets), env (Lovable vs Supabase), och verifiering så att front och backend synkar utan fel. Använd efter varje Pull.
-- **`LOVABLE_PULL_CHECKLIST.md`** – Detaljerad lista över filer att hämta (felhantering, Contact, ads.txt) och snabbkontroll efter deploy.
+- **`LOVABLE_SYNC_CHECKLIST.md`** – **Lovable: huvudchecklista.** Lovable ska **implementera** – inte göra om. Utför steg för steg (A1–A4, B1–B3, C1–C2, D). Frontend-filer som måste finnas kvar, backend (migrations, Edge Functions, secrets), env (Lovable vs Supabase), verifiering. Använd efter varje Pull.
+- **`LOVABLE_PULL_CHECKLIST.md`** – Detaljerad lista över filer att hämta (felhantering, Contact, TopPage, CityPage, ads.txt, routes). Lovable ska implementera – inte göra om.
 - **`IMPLEMENTATION_GUIDE.md`** – Error Boundaries, Offline Mode (IndexedDB), Push ("Ny like!"), Lazy Loading; kod och filstruktur.
 - **`TESTING_CHECKLIST.md`** – Komplett testguide för error boundaries, offline, push, lazy loading, performance 4G.
 - **`SEARCH_CONSOLE_INDEXING.md`** – Alla city-URL:er för Google Search Console (Request Indexing) + sitemap.

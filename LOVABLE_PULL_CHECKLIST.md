@@ -2,9 +2,20 @@
 
 **Branch:** `main` (Lovable ska vara kopplad till denna branch)
 
-**För full synk front + backend utan fel:** Se **`LOVABLE_SYNC_CHECKLIST.md`** (migrations, Edge Functions, secrets, env, verifiering).
+---
 
-**Viktigt:** Efter Pull latest i Lovable – bygg och deploya. Alla filer nedan måste finnas i repot som Lovable bygger från. Ändra inte bort felhantering eller optimeringar.
+## ⚠️ INSTRUKTION FÖR LOVABLE – LÄS FÖRST
+
+**Lovable ska IMPLEMENTERA – inte göra om.**
+
+- **Implementera** = ta koden från GitHub och behålla den som den är. Utför punkt för punkt.
+- **Göra om** = skriva ny kod, ändra struktur, ta bort eller ersätta filer. Det ska Lovable **inte** göra.
+
+**Arbeta igenom checklistan steg för steg, en punkt i taget.** Kryssa av varje punkt när den är klar. Hoppa inte över steg.
+
+**För full synk front + backend:** Se **`LOVABLE_SYNC_CHECKLIST.md`** (A1–A4, B1–B3, C1–C2, D, sammanfattning).
+
+---
 
 ---
 
@@ -34,10 +45,13 @@ Dessa filer **måste** vara uppdaterade i Lovable så att användare inte får f
 ## ✅ Övriga filer att hämta (frontend)
 
 ### Sidor & komponenter
-- [ ] `src/pages/Contact.tsx` + `src/pages/Contact.css` – Kontaktsida
-- [ ] `src/App.tsx` – route `/contact`, lazy Contact
-- [ ] `src/components/Layout.tsx` – länk "Contact" i header (redan med ErrorBoundary ovan)
-- [ ] `src/pages/Login.tsx` – länk "Contact us" under formuläret
+- [ ] `src/pages/Contact.tsx` + `src/pages/Contact.css` – Kontaktsida (route `/contact`)
+- [ ] `src/pages/TopPage.tsx` + `src/pages/TopPage.css` – Publik topplista (route `/top`)
+- [ ] `src/pages/cities/CityPage.tsx` – Stadssida (route `/:city`)
+- [ ] `src/App.tsx` – routes `/contact`, `/top`, `/`, `/swipe`, `/pricing`, etc. Lazy imports för alla sidor. Använder `src/constants/routes.ts`.
+- [ ] `src/constants/routes.ts` – Route-konstanter (ROUTES.LOGIN, ROUTES.PRICING, etc.)
+- [ ] `src/components/Layout.tsx` – ErrorBoundary runt Outlet, länk "Contact" i header
+- [ ] `src/pages/Login.tsx` – länkar "Contact us", "See top 10 freelancers" under formuläret
 
 ### Public & index
 - [ ] **`public/ads.txt`** – Adnium (10183 + 11745, pubid 1002887). Ska serveras som /ads.txt
@@ -57,6 +71,6 @@ Dessa filer **måste** vara uppdaterade i Lovable så att användare inte får f
 3. **ErrorBoundary:** Simulera fel (t.ex. kasta i en komponent) – sidan visar "Något gick fel" med knapp "Försök igen"; klicka → innehållet laddas om. På en inre sida (t.ex. Swipe) ska header fortfarande synas och man kan navigera bort.
 4. **Checkout:** Vid nätverksfel vid köp ska användaren se "Network error. Please try again." (inte tekniska fel).
 5. **Home/Swipe:** Vid trasig API ska listor bli tomma eller visa fel – ingen evig "Loading…".
-6. **Route** `/contact` – fungerar; **ads.txt** – innehåller Adnium-rader.
+6. **Routes** `/contact` och `/top` – fungerar; **ads.txt** – innehåller Adnium-rader.
 
 *Edge Functions deployas via Supabase CLI/Dashboard, inte via Lovable.*
