@@ -6,6 +6,7 @@ import { PromoCodeInput } from '@/components/PromoCodeInput'
 import { supabase } from '@/lib/supabase'
 import { getVariant } from '@/lib/abTesting'
 import { trackStripeFunnel } from '@/lib/analytics'
+import { ROUTES } from '@/constants/routes'
 import './Pricing.css'
 
 // Stripe Price IDs (set in env)
@@ -42,7 +43,7 @@ export default function Pricing() {
 
   async function handleCheckout(planType: string, priceId: string, therapistId?: string, salongId?: string) {
     if (!user?.id) {
-      navigate('/login', { state: { returnTo: '/pricing' } })
+      navigate(ROUTES.LOGIN, { state: { returnTo: ROUTES.PRICING } })
       return
     }
     if (!priceId) {
@@ -79,7 +80,7 @@ export default function Pricing() {
       const msg = e instanceof Error ? e.message : 'Checkout failed'
       trackStripeFunnel('checkout_error', { plan_type: planType, error: msg })
       if (msg === 'REGISTER_FIRST' || msg.includes('Unauthorized') || msg.includes('Register') || msg.includes('profile')) {
-        navigate('/login', { state: { returnTo: '/pricing' } })
+        navigate(ROUTES.LOGIN, { state: { returnTo: ROUTES.PRICING } })
         return
       }
       setError(msg)
@@ -109,7 +110,7 @@ export default function Pricing() {
                 type="button"
                 className="btn-plan"
                 onClick={() => handleCheckout('unlock-profile', PRICE_IDS.customer.unlockProfile)}
-                disabled={loading === 'unlock-profile' || !PRICE_IDS.customer.unlockProfile}
+                disabled={loading === 'unlock-profile' || !PRICE_IDS.customer.unlockProfile || !user?.id}
               >
                 {loading === 'unlock-profile' ? 'Redirecting…' : 'Buy Now'}
               </button>
@@ -124,7 +125,7 @@ export default function Pricing() {
                 type="button"
                 className="btn-plan"
                 onClick={() => handleCheckout('12h-unlimited', PRICE_IDS.customer.unlimited12h)}
-                disabled={loading === '12h-unlimited' || !PRICE_IDS.customer.unlimited12h}
+                disabled={loading === '12h-unlimited' || !PRICE_IDS.customer.unlimited12h || !user?.id}
               >
                 {loading === '12h-unlimited' ? 'Redirecting…' : 'Buy Now'}
               </button>
@@ -148,7 +149,7 @@ export default function Pricing() {
                 type="button"
                 className="btn-plan"
                 onClick={() => handleCheckout('therapist-premium-1m', PRICE_IDS.therapist.premium1m)}
-                disabled={loading === 'therapist-premium-1m' || !PRICE_IDS.therapist.premium1m}
+                disabled={loading === 'therapist-premium-1m' || !PRICE_IDS.therapist.premium1m || !user?.id}
               >
                 {loading === 'therapist-premium-1m' ? 'Redirecting…' : 'Buy Now'}
               </button>
@@ -163,7 +164,7 @@ export default function Pricing() {
                 type="button"
                 className="btn-plan"
                 onClick={() => handleCheckout('therapist-premium-3m', PRICE_IDS.therapist.premium3m)}
-                disabled={loading === 'therapist-premium-3m' || !PRICE_IDS.therapist.premium3m}
+                disabled={loading === 'therapist-premium-3m' || !PRICE_IDS.therapist.premium3m || !user?.id}
               >
                 {loading === 'therapist-premium-3m' ? 'Redirecting…' : 'Buy Now'}
               </button>
@@ -178,7 +179,7 @@ export default function Pricing() {
                 type="button"
                 className="btn-plan"
                 onClick={() => handleCheckout('boost-swipe-6h', PRICE_IDS.therapist.boostSwipe6h)}
-                disabled={loading === 'boost-swipe-6h' || !PRICE_IDS.therapist.boostSwipe6h}
+                disabled={loading === 'boost-swipe-6h' || !PRICE_IDS.therapist.boostSwipe6h || !user?.id}
               >
                 {loading === 'boost-swipe-6h' ? 'Redirecting…' : 'Buy Now'}
               </button>
@@ -193,7 +194,7 @@ export default function Pricing() {
                 type="button"
                 className="btn-plan"
                 onClick={() => handleCheckout('boost-search-24h', PRICE_IDS.therapist.boostSearch24h)}
-                disabled={loading === 'boost-search-24h' || !PRICE_IDS.therapist.boostSearch24h}
+                disabled={loading === 'boost-search-24h' || !PRICE_IDS.therapist.boostSearch24h || !user?.id}
               >
                 {loading === 'boost-search-24h' ? 'Redirecting…' : 'Buy Now'}
               </button>
@@ -216,7 +217,7 @@ export default function Pricing() {
                 type="button"
                 className="btn-plan"
                 onClick={() => handleCheckout('salong-premium-1m', PRICE_IDS.salong.premium1m)}
-                disabled={loading === 'salong-premium-1m' || !PRICE_IDS.salong.premium1m}
+                disabled={loading === 'salong-premium-1m' || !PRICE_IDS.salong.premium1m || !user?.id}
               >
                 {loading === 'salong-premium-1m' ? 'Redirecting…' : 'Buy Now'}
               </button>
@@ -231,7 +232,7 @@ export default function Pricing() {
                 type="button"
                 className="btn-plan"
                 onClick={() => handleCheckout('salong-toplist-7d', PRICE_IDS.salong.toplist7d)}
-                disabled={loading === 'salong-toplist-7d' || !PRICE_IDS.salong.toplist7d}
+                disabled={loading === 'salong-toplist-7d' || !PRICE_IDS.salong.toplist7d || !user?.id}
               >
                 {loading === 'salong-toplist-7d' ? 'Redirecting…' : 'Buy Now'}
               </button>

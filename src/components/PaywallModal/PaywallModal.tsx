@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useUniversalBuy } from '@/hooks/useUniversalBuy'
+import { ROUTES } from '@/constants/routes'
 import './PaywallModal.css'
 
 const UNLIMITED_PRICE_ID = import.meta.env.VITE_STRIPE_UNLIMITED_12H ?? ''
@@ -32,13 +33,13 @@ export function PaywallModal({ open, onClose, mode: _mode = 'signup' }: Props) {
 
   async function handleUnlimited() {
     if (!UNLIMITED_PRICE_ID) {
-      navigate('/pricing')
+      navigate(ROUTES.PRICING)
       onClose()
       return
     }
     if (!user?.id) {
       onClose()
-      navigate('/login', { state: { returnTo: '/pricing' } })
+      navigate(ROUTES.LOGIN, { state: { returnTo: ROUTES.PRICING } })
       return
     }
     setError(null)
@@ -54,7 +55,7 @@ export function PaywallModal({ open, onClose, mode: _mode = 'signup' }: Props) {
       const msg = e instanceof Error ? e.message : 'Checkout failed'
       if (msg === 'REGISTER_FIRST' || msg.includes('Unauthorized') || msg.includes('Register')) {
         onClose()
-        navigate('/login', { state: { returnTo: '/pricing' } })
+        navigate(ROUTES.LOGIN, { state: { returnTo: ROUTES.PRICING } })
         return
       }
       setError(msg)
@@ -65,12 +66,12 @@ export function PaywallModal({ open, onClose, mode: _mode = 'signup' }: Props) {
 
   function handleSignup() {
     onClose()
-    navigate('/login')
+    navigate(ROUTES.LOGIN)
   }
 
   function handleLogin() {
     onClose()
-    navigate('/login')
+    navigate(ROUTES.LOGIN)
   }
 
   return (

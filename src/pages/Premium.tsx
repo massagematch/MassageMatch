@@ -1,18 +1,25 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { AccessTimer } from '@/components/AccessTimer'
 import { supabase } from '@/lib/supabase'
+import { ROUTES } from '@/constants/routes'
 import './Premium.css'
 
 const PREMIUM_PRICE_ID = import.meta.env.VITE_STRIPE_PREMIUM_PRICE_ID ?? ''
 
 export default function Premium() {
+  const navigate = useNavigate()
   const { user, profile } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   async function handleCheckout() {
-    if (!PREMIUM_PRICE_ID || !user) {
+    if (!user?.id) {
+      navigate(ROUTES.LOGIN, { state: { returnTo: ROUTES.PREMIUM } })
+      return
+    }
+    if (!PREMIUM_PRICE_ID) {
       setError('Checkout not configured')
       return
     }
@@ -38,7 +45,12 @@ export default function Premium() {
       if (data?.error) throw new Error(data.error)
       else setError('No checkout URL returned')
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Checkout failed')
+      const msg = e instanceof Error ? e.message : 'Checkout failed'
+      if (msg === 'REGISTER_FIRST' || msg.includes('Unauthorized') || msg.includes('Register') || msg.includes('profile')) {
+        navigate(ROUTES.LOGIN, { state: { returnTo: ROUTES.PREMIUM } })
+        return
+      }
+      setError(msg)
     } finally {
       setLoading(false)
     }
@@ -60,7 +72,7 @@ export default function Premium() {
         type="button"
         className="btn-premium"
         onClick={handleCheckout}
-        disabled={loading || !PREMIUM_PRICE_ID}
+        disabled={loading || !PREMIUM_PRICE_ID || !user?.id}
       >
         {loading ? 'Redirecting…' : 'Buy 12h Premium'}
       </button>

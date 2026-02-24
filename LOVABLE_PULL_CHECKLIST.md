@@ -13,7 +13,7 @@
 
 **Arbeta igenom checklistan steg för steg, en punkt i taget.** Kryssa av varje punkt när den är klar. Hoppa inte över steg.
 
-**För full synk front + backend:** Se **`LOVABLE_SYNC_CHECKLIST.md`** (A1–A4, B1–B3, C1–C2, D, sammanfattning).
+**För full synk front + backend:** Se **`LOVABLE_SYNC_CHECKLIST.md`** (A1–A5, B1–B3, C1–C2, D, sammanfattning).
 
 ---
 
@@ -39,6 +39,14 @@ Dessa filer **måste** vara uppdaterade i Lovable så att användare inte får f
 - [ ] `src/hooks/useUniversalBuy.ts` – try/catch med "Network error" och "Checkout failed" meddelanden
 - [ ] `src/pages/Home.tsx` – load() i try/catch, setTopTherapists([]) vid fel
 - [ ] `src/pages/Swipe.tsx` – load() i try { ... } catch { setTherapists([]) } finally { setListLoading(false) }
+
+### A5. Köp kräver inloggning (ta inte bort)
+- [ ] `src/pages/Pricing.tsx` – handleCheckout kollar `!user?.id` → navigate(ROUTES.LOGIN). Köpknappar disabled när `!user?.id`.
+- [ ] `src/pages/Premium.tsx` – samma; knapp disabled när `!user?.id`.
+- [ ] `src/pages/UnlockedProfiles.tsx` – handleExtend kollar user; Extend-knapp disabled när `!user?.id`.
+- [ ] `src/components/PaywallModal/PaywallModal.tsx` – handleUnlimited redirectar till login när `!user?.id`.
+- [ ] `src/components/UnlockModal/UnlockModal.tsx` – handleUnlock redirectar; knapp disabled när `!user?.id`.
+- [ ] `src/components/ExitIntentPopup.tsx` – visar Claim-knapp endast när `user` finns.
 
 ---
 

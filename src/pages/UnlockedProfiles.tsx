@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { MapButton } from '@/components/MapButton'
 import { OptimizedImage } from '@/components/OptimizedImage'
 import { trackUnlockFunnel } from '@/lib/analytics'
+import { ROUTES } from '@/constants/routes'
 import './UnlockedProfiles.css'
 
 const UNLOCK_PRICE_ID = import.meta.env.VITE_STRIPE_UNLOCK_PROFILE ?? ''
@@ -31,6 +32,7 @@ type UnlockedRow = {
 type Tab = 'active' | 'expired' | 'contacted'
 
 export default function UnlockedProfiles() {
+  const navigate = useNavigate()
   const { user } = useAuth()
   const [rows, setRows] = useState<UnlockedRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -66,7 +68,11 @@ export default function UnlockedProfiles() {
   const list = tab === 'active' ? active : tab === 'expired' ? expired : byContacted
 
   async function handleExtend(therapistId: string) {
-    if (!UNLOCK_PRICE_ID || !user) return
+    if (!user?.id) {
+      navigate(ROUTES.LOGIN, { state: { returnTo: ROUTES.UNLOCKED_PROFILES } })
+      return
+    }
+    if (!UNLOCK_PRICE_ID) return
     setExtending(therapistId)
     trackUnlockFunnel('extend_clicked', { therapist_id: therapistId })
     try {
@@ -86,7 +92,14 @@ export default function UnlockedProfiles() {
         window.location.assign(data.url)
         return
       }
-      if (data?.error) throw new Error(data.error)
+      if (data?.error) {
+        const msg = data.error as string
+        if (msg.includes('Register') || msg.includes('profile') || msg.includes('Unauthorized')) {
+          navigate(ROUTES.LOGIN, { state: { returnTo: ROUTES.UNLOCKED_PROFILES } })
+          return
+        }
+        throw new Error(msg)
+      }
     } catch (e) {
       console.error(e)
     } finally {
@@ -155,7 +168,7 @@ export default function UnlockedProfiles() {
                       type="button"
                       className="btn-extend"
                       onClick={() => handleExtend(t.id)}
-                      disabled={extending === t.id || !UNLOCK_PRICE_ID}
+                      disabled={extending === t.id || !UNLOCK_PRICE_ID || !user?.id}
                     >
                       {extending === t.id ? '…' : `Extend access ${EXTEND_PRICE_THB} THB`}
                     </button>
@@ -167,7 +180,7 @@ export default function UnlockedProfiles() {
         </div>
       )}
       <p className="unlocked-back">
-        <Link to="/swipe">← Back to Swipe</Link>
+        <Link to={ROUTES.SWIPE}>← Back to Swipe</Link>
       </p>
     </div>
   )

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useUniversalBuy } from '@/hooks/useUniversalBuy'
 import { getVariant } from '@/lib/abTesting'
 import { trackUnlockFunnel, trackUnlockRate } from '@/lib/analytics'
+import { ROUTES } from '@/constants/routes'
 import './UnlockModal.css'
 
 const UNLOCK_PRICE_ID = import.meta.env.VITE_STRIPE_UNLOCK_PROFILE ?? ''
@@ -18,6 +20,7 @@ type Props = {
 }
 
 export function UnlockModal({ therapist, isRepeat, onClose }: Props) {
+  const navigate = useNavigate()
   const { user } = useAuth()
   const { buyNow } = useUniversalBuy()
   const [loading, setLoading] = useState(false)
@@ -36,8 +39,13 @@ export function UnlockModal({ therapist, isRepeat, onClose }: Props) {
   }, [therapist.id])
 
   async function handleUnlock() {
-    if (!UNLOCK_PRICE_ID || !user) {
+    if (!UNLOCK_PRICE_ID) {
       setError('Checkout not configured')
+      return
+    }
+    if (!user?.id) {
+      onClose()
+      navigate(ROUTES.LOGIN, { state: { returnTo: ROUTES.SWIPE } })
       return
     }
     setError(null)
@@ -54,7 +62,13 @@ export function UnlockModal({ therapist, isRepeat, onClose }: Props) {
         cancel_url: window.location.href,
       })
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Checkout failed')
+      const msg = e instanceof Error ? e.message : 'Checkout failed'
+      if (msg === 'REGISTER_FIRST' || msg.includes('Unauthorized') || msg.includes('Register') || msg.includes('profile')) {
+        onClose()
+        navigate(ROUTES.LOGIN, { state: { returnTo: ROUTES.SWIPE } })
+        return
+      }
+      setError(msg)
       trackUnlockFunnel('error', { therapist_id: therapist.id, error: String(e) })
     } finally {
       setLoading(false)
@@ -86,7 +100,7 @@ export function UnlockModal({ therapist, isRepeat, onClose }: Props) {
           type="button"
           className="btn-unlock swipe-to-unlock"
           onClick={handleUnlock}
-          disabled={loading || !UNLOCK_PRICE_ID}
+          disabled={loading || !UNLOCK_PRICE_ID || !user?.id}
         >
           {loading ? 'Redirecting…' : buttonCopy}
         </button>

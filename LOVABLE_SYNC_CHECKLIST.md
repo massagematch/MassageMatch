@@ -9,7 +9,7 @@
 - **Implementera** = ta koden från GitHub och behålla den som den är. Utför punkt för punkt.
 - **Göra om** = skriva ny kod, ändra struktur, ta bort eller ersätta filer. Det ska Lovable **inte** göra.
 
-**Arbeta igenom checklistan steg för steg, en punkt i taget (A1 → A2 → A3 → A4 → B1 → B2 → B3 → C1 → C2 → D).** Kryssa av varje punkt när den är klar. Hoppa inte över steg. Om något av detta saknas eller har tagits bort får användare fel eller sidan fungerar inte.
+**Arbeta igenom checklistan steg för steg, en punkt i taget (A1 → A2 → A3 → A4 → A5 → B1 → B2 → B3 → C1 → C2 → D).** Kryssa av varje punkt när den är klar. Hoppa inte över steg. Om något av detta saknas eller har tagits bort får användare fel eller sidan fungerar inte.
 
 ---
 
@@ -59,6 +59,21 @@ Frontend anropar dessa – om de saknas i Supabase får användaren fel:
 | RPC | `get_therapists_visible` | Home, Swipe, CityPage, TopPage. **Måste finnas.** |
 | RPC | `nearby_therapists` | Dashboard. |
 | RPC | `get_referral_leaderboard` | Dashboard. |
+
+### A5. Köp kräver inloggning (annars kan oinloggade nå checkout – köpet aktiveras inte)
+
+Alla köpknappar måste kolla `user` innan checkout. Vid `!user` → redirect till `/login` med `returnTo`. Knappar ska vara `disabled` när `!user?.id`.
+
+| Fil | Krävs | Kontroll |
+|-----|-------|----------|
+| `src/pages/Pricing.tsx` | Ja | handleCheckout: `if (!user?.id) navigate(ROUTES.LOGIN, { returnTo: ROUTES.PRICING })`. Alla köpknappar: `disabled={... \|\| !user?.id}`. |
+| `src/pages/Premium.tsx` | Ja | handleCheckout: `if (!user?.id) navigate(ROUTES.LOGIN, ...)`. Knapp: `disabled={... \|\| !user?.id}`. |
+| `src/pages/UnlockedProfiles.tsx` | Ja | handleExtend: `if (!user?.id) navigate(ROUTES.LOGIN, ...)`. Extend-knapp: `disabled={... \|\| !user?.id}`. |
+| `src/components/PaywallModal/PaywallModal.tsx` | Ja | handleUnlimited: `if (!user?.id) navigate(ROUTES.LOGIN, { returnTo: ROUTES.PRICING })`. Vid !user visar "Register first to buy". |
+| `src/components/UnlockModal/UnlockModal.tsx` | Ja | handleUnlock: `if (!user?.id) navigate(ROUTES.LOGIN, { returnTo: ROUTES.SWIPE })`. Knapp: `disabled={... \|\| !user?.id}`. |
+| `src/components/ExitIntentPopup.tsx` | Ja | Visar "Claim"-knapp endast när `user` finns. Annars "Register below to get 20% off". |
+
+**Backend (create-checkout):** Kräver redan auth; returnerar 401 om ingen token. **stripe-webhook:** Aktiverar köp endast om `metadata.user_id` eller `client_reference_id` finns – annars kopplas inte köpet till någon användare.
 
 ---
 
@@ -149,8 +164,9 @@ Kryssa av efter varje Pull och efter deploy:
 ## Sammanfattning – vad Lovable ofta missar
 
 1. **Ta bort eller skriva över** de 6 filerna i A1 (main.tsx, ErrorBoundary, Layout, useUniversalBuy, Home, Swipe) → användare får kraschar eller evig laddning.
-2. **Glömma** att Supabase har migrations 1–20 och att `create-checkout` + `stripe-webhook` + `swipe-use` är deployade → 500/404 eller "function not found" vid köp/swipe.
-3. **Sätta hemligheter** (t.ex. STRIPE_SECRET_KEY) i Lovable istället för i Supabase → risk att de läcker i källkoden.
-4. **Sakna** `public/ads.txt` eller rätt `index.html` (premium-check) → fel annonser eller SEO.
+2. **Ta bort auth-guards** i A5 (Pricing, Premium, UnlockModal, PaywallModal, UnlockedProfiles, ExitIntentPopup) → oinloggade kan nå checkout; köpet aktiveras inte eftersom systemet inte vet vem som köpt.
+3. **Glömma** att Supabase har migrations 1–20 och att `create-checkout` + `stripe-webhook` + `swipe-use` är deployade → 500/404 eller "function not found" vid köp/swipe.
+4. **Sätta hemligheter** (t.ex. STRIPE_SECRET_KEY) i Lovable istället för i Supabase → risk att de läcker i källkoden.
+5. **Sakna** `public/ads.txt` eller rätt `index.html` (premium-check) → fel annonser eller SEO.
 
-**Efter varje Pull:** gå igenom A1–A4, kör D1, och kontrollera att B1–B2 är uppfyllda i Supabase. **Implementera – gör inte om.** Då synkar front och backend utan fel.
+**Efter varje Pull:** gå igenom A1–A5, kör D1, och kontrollera att B1–B2 är uppfyllda i Supabase. **Implementera – gör inte om.** Då synkar front och backend utan fel.
