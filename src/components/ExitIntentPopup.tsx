@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { useABTest } from '@/hooks/useABTest'
 import { ROUTES } from '@/constants/routes'
+import { invokeCreateCheckoutWithTimeout } from '@/lib/checkout'
 import './ExitIntentPopup.css'
 
 const DISCOUNT_CODE = 'EXIT20'
@@ -68,17 +69,15 @@ export function ExitIntentPopup() {
     setLoading(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
-      const { data, error: fnErr } = await supabase.functions.invoke('create-checkout', {
-        body: {
+      const { data, error: fnErr } = await invokeCreateCheckoutWithTimeout(
+        {
           price_id: priceId,
           plan_type: '12h-unlimited',
           success_url: `${window.location.origin}/pricing?discount=${DISCOUNT_CODE}`,
           cancel_url: `${window.location.origin}/pricing`,
         },
-        headers: session?.access_token
-          ? { Authorization: `Bearer ${session.access_token}` }
-          : undefined,
-      })
+        session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined
+      )
       if (fnErr) throw fnErr
       if (data?.error) throw new Error(data.error)
       if (data?.url) {
@@ -88,11 +87,14 @@ export function ExitIntentPopup() {
       throw new Error('No checkout URL returned')
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Checkout failed'
+      const isTimeout = /taking too long/i.test(String(msg))
       const isEdgeFnError = /edge function|failed to send|network|fetch/i.test(String(msg))
       setError(
-        isEdgeFnError
-          ? `Checkout service unavailable. Go to Pricing and use code ${DISCOUNT_CODE} (or FIRST20) at checkout.`
-          : msg
+        isTimeout
+          ? msg
+          : isEdgeFnError
+            ? `Checkout service unavailable. Go to Pricing and use code ${DISCOUNT_CODE} (or FIRST20) at checkout.`
+            : msg
       )
     } finally {
       setLoading(false)

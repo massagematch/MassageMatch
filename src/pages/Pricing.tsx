@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 import { getVariant } from '@/lib/abTesting'
 import { trackStripeFunnel } from '@/lib/analytics'
 import { ROUTES } from '@/constants/routes'
+import { invokeCreateCheckoutWithTimeout } from '@/lib/checkout'
 import './Pricing.css'
 
 // Stripe Price IDs (set in env)
@@ -55,8 +56,8 @@ export default function Pricing() {
     trackStripeFunnel('checkout_initiated', { plan_type: planType, variant: pricingVariant })
     try {
       const { data: { session } } = await supabase.auth.getSession()
-      const { data, error: fnErr } = await supabase.functions.invoke('create-checkout', {
-        body: {
+      const { data, error: fnErr } = await invokeCreateCheckoutWithTimeout(
+        {
           price_id: priceId,
           plan_type: planType,
           therapist_id: therapistId,
@@ -64,10 +65,8 @@ export default function Pricing() {
           success_url: `${window.location.origin}/pricing?success=1`,
           cancel_url: `${window.location.origin}/pricing`,
         },
-        headers: session?.access_token
-          ? { Authorization: `Bearer ${session.access_token}` }
-          : undefined,
-      })
+        session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined
+      )
       if (fnErr) throw fnErr
       if (data?.url) {
         trackStripeFunnel('checkout_redirected', { plan_type: planType })

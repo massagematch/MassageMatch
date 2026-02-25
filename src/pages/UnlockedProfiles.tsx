@@ -6,6 +6,7 @@ import { MapButton } from '@/components/MapButton'
 import { OptimizedImage } from '@/components/OptimizedImage'
 import { trackUnlockFunnel } from '@/lib/analytics'
 import { ROUTES } from '@/constants/routes'
+import { invokeCreateCheckoutWithTimeout } from '@/lib/checkout'
 import './UnlockedProfiles.css'
 
 const UNLOCK_PRICE_ID = import.meta.env.VITE_STRIPE_UNLOCK_PROFILE ?? ''
@@ -38,6 +39,7 @@ export default function UnlockedProfiles() {
   const [loading, setLoading] = useState(true)
   const [tab, setTab] = useState<Tab>('active')
   const [extending, setExtending] = useState<string | null>(null)
+  const [extendError, setExtendError] = useState<string | null>(null)
 
   useEffect(() => {
     async function load() {
@@ -74,19 +76,20 @@ export default function UnlockedProfiles() {
     }
     if (!UNLOCK_PRICE_ID) return
     setExtending(therapistId)
+    setExtendError(null)
     trackUnlockFunnel('extend_clicked', { therapist_id: therapistId })
     try {
       const { data: { session } } = await supabase.auth.getSession()
-      const { data, error: fnErr } = await supabase.functions.invoke('create-checkout', {
-        body: {
+      const { data, error: fnErr } = await invokeCreateCheckoutWithTimeout(
+        {
           price_id: UNLOCK_PRICE_ID,
           plan_type: 'unlock-profile',
           therapist_id: therapistId,
           success_url: `${window.location.origin}/unlocked-profiles?success=1`,
           cancel_url: `${window.location.origin}/unlocked-profiles`,
         },
-        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
-      })
+        session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined
+      )
       if (fnErr) throw fnErr
       if (data?.url) {
         window.location.assign(data.url)
@@ -101,7 +104,8 @@ export default function UnlockedProfiles() {
         throw new Error(msg)
       }
     } catch (e) {
-      console.error(e)
+      const msg = e instanceof Error ? e.message : 'Checkout failed'
+      setExtendError(msg.includes('taking too long') ? msg : 'Checkout failed. Please try again.')
     } finally {
       setExtending(null)
     }
@@ -121,6 +125,7 @@ export default function UnlockedProfiles() {
       {window.location.search.includes('success=1') && (
         <div className="alert success">Unlock successful. You can contact below.</div>
       )}
+      {extendError && <div className="alert error">{extendError}</div>}
       <div className="unlocked-tabs">
         <button type="button" className={tab === 'active' ? 'active' : ''} onClick={() => setTab('active')}>
           Active ({active.length})

@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { AccessTimer } from '@/components/AccessTimer'
 import { supabase } from '@/lib/supabase'
 import { ROUTES } from '@/constants/routes'
+import { invokeCreateCheckoutWithTimeout } from '@/lib/checkout'
 import './Premium.css'
 
 const PREMIUM_PRICE_ID = import.meta.env.VITE_STRIPE_PREMIUM_PRICE_ID ?? ''
@@ -27,16 +28,14 @@ export default function Premium() {
     setLoading(true)
     try {
       const { data: { session } } = await supabase.auth.getSession()
-      const { data, error: fnErr } = await supabase.functions.invoke('create-checkout', {
-        body: {
+      const { data, error: fnErr } = await invokeCreateCheckoutWithTimeout(
+        {
           price_id: PREMIUM_PRICE_ID,
           success_url: `${window.location.origin}/premium?success=1`,
           cancel_url: `${window.location.origin}/premium`,
         },
-        headers: session?.access_token
-          ? { Authorization: `Bearer ${session.access_token}` }
-          : undefined,
-      })
+        session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined
+      )
       if (fnErr) throw fnErr
       if (data?.url) {
         window.location.assign(data.url)

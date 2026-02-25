@@ -28,6 +28,7 @@ export function PaywallModal({ open, onClose, mode: _mode = 'signup' }: Props) {
   const { buyNow } = useUniversalBuy()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showRegisterFirst, setShowRegisterFirst] = useState(false)
 
   if (!open) return null
 
@@ -38,8 +39,7 @@ export function PaywallModal({ open, onClose, mode: _mode = 'signup' }: Props) {
       return
     }
     if (!user?.id) {
-      onClose()
-      navigate(ROUTES.LOGIN, { state: { returnTo: ROUTES.PRICING } })
+      setShowRegisterFirst(true)
       return
     }
     setError(null)
@@ -72,6 +72,31 @@ export function PaywallModal({ open, onClose, mode: _mode = 'signup' }: Props) {
   function handleLogin() {
     onClose()
     navigate(ROUTES.LOGIN)
+  }
+
+  function handleRegisterFirstConfirm() {
+    onClose()
+    navigate(ROUTES.LOGIN, { state: { returnTo: ROUTES.PRICING } })
+  }
+
+  if (showRegisterFirst) {
+    return (
+      <div className="paywall-overlay" onClick={() => setShowRegisterFirst(false)} role="dialog" aria-modal="true" aria-labelledby="paywall-register-title">
+        <div className="paywall-modal" onClick={(e) => e.stopPropagation()}>
+          <button type="button" className="paywall-close" onClick={() => setShowRegisterFirst(false)} aria-label="Close">×</button>
+          <h2 id="paywall-register-title" className="paywall-title">Register to purchase</h2>
+          <p className="paywall-desc">You need to register or log in to complete your purchase.</p>
+          <div className="paywall-ctas">
+            <button type="button" className="paywall-btn paywall-btn-primary" onClick={handleRegisterFirstConfirm}>
+              Register / Log in
+            </button>
+            <button type="button" className="paywall-btn paywall-btn-outline" onClick={() => setShowRegisterFirst(false)}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (

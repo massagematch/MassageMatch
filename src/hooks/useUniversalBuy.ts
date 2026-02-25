@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import { invokeCreateCheckoutWithTimeout } from '@/lib/checkout'
 
 /**
  * Universal Stripe checkout: always redirect (no popup) for iOS Safari, Android, PWA.
@@ -20,8 +21,8 @@ export function useUniversalBuy() {
         if (!session?.user) {
           throw new Error('REGISTER_FIRST')
         }
-        const { data, error } = await supabase.functions.invoke('create-checkout', {
-          body: {
+        const { data, error } = await invokeCreateCheckoutWithTimeout(
+          {
             price_id: params.price_id,
             plan_type: params.plan_type,
             therapist_id: params.therapist_id,
@@ -29,8 +30,8 @@ export function useUniversalBuy() {
             success_url: params.success_url ?? `${window.location.origin}?success=1`,
             cancel_url: params.cancel_url ?? window.location.href,
           },
-          headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined,
-        })
+          session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : undefined
+        )
         if (error) throw error
         if (data?.error) {
           const msg = data.error === 'Unauthorized. Register or log in first to purchase.' ? 'REGISTER_FIRST' : data.error
@@ -44,7 +45,7 @@ export function useUniversalBuy() {
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e)
         if (msg === 'REGISTER_FIRST' || msg.includes('Unauthorized') || msg.includes('Register')) throw new Error('REGISTER_FIRST')
-        if (/network|fetch|failed to fetch|timeout/i.test(msg)) throw new Error('Network error. Please try again.')
+        if (/network|fetch|failed to fetch|timeout|taking too long/i.test(msg)) throw new Error(msg.includes('taking too long') ? msg : 'Network error. Please try again.')
         throw e instanceof Error ? e : new Error('Checkout failed. Please try again.')
       }
     },
