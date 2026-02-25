@@ -13,7 +13,7 @@
 
 **Arbeta igenom checklistan steg för steg, en punkt i taget.** Kryssa av varje punkt när den är klar. Hoppa inte över steg.
 
-**För full synk front + backend:** Se **`LOVABLE_SYNC_CHECKLIST.md`** (A1–A5, B1–B3, C1–C2, D, sammanfattning).
+**För full synk front + backend:** Se **`LOVABLE_SYNC_CHECKLIST.md`** (A1–A6, B1–B3, C1–C2, D, sammanfattning). **För terminology:** Se A6 i LOVABLE_SYNC_CHECKLIST och **`IMPLEMENTATION_STATUS.md`**.
 
 ---
 
@@ -62,6 +62,9 @@ Dessa filer **måste** vara uppdaterade i Lovable så att användare inte får f
 - [ ] `src/components/AdminFooterButton.tsx` – Discreet footer med Admin-login; **ingen hårdkodad admin-lösenord** – användaren skriver in lösenord själv.
 - [ ] `src/components/ExitIntentPopup.tsx` – Popup **enbart på /login**; trigger: `visibilitychange` + `mouseleave clientY <= 0`; max 1 gång/session.
 - [ ] `src/pages/Login.tsx` – länkar "Contact us", "See top 10 freelancers" under formuläret
+
+### Terminology (A6)
+- [ ] **A6 Terminology** – Alla användarvisade therapist/therapists → therapist/freelance och therapists/freelancers (se LOVABLE_SYNC_CHECKLIST A6 och IMPLEMENTATION_STATUS.md).
 
 ### Public & index
 - [ ] **`public/ads.txt`** – Adnium (10183 + 11745, pubid 1002887). Ska serveras som /ads.txt

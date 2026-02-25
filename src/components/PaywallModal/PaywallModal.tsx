@@ -17,7 +17,7 @@ type Props = {
 
 const BENEFITS = [
   'Unlimited swipes',
-  'Chat verified therapists',
+  'Chat verified therapists/freelancers',
   "See who's nearby",
   'Top list priority',
 ]

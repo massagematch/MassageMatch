@@ -103,7 +103,7 @@ export default function Pricing() {
             <div className="plan-card">
               <h3>Unlock Profile</h3>
               <div className="plan-price">49 THB</div>
-              <p className="plan-desc">Unlock 1 therapist/salong + direct contact</p>
+              <p className="plan-desc">Unlock 1 therapist/freelance or salong + direct contact</p>
               <p className="plan-duration">Duration: 1 hour</p>
               <button
                 type="button"

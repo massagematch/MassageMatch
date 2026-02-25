@@ -138,7 +138,7 @@ export default function AdminUsers() {
         <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="filter-select">
           <option value="all">All Roles</option>
           <option value="customer">Customers</option>
-          <option value="therapist">Therapists</option>
+          <option value="therapist">Therapists/Freelancers</option>
           <option value="salong">Salongs</option>
         </select>
         <button type="button" onClick={handleExport} className="btn-export">
@@ -244,7 +244,7 @@ export default function AdminUsers() {
                 onChange={(e) => setEditData({ ...editData, role: e.target.value as any })}
               >
                 <option value="customer">Customer</option>
-                <option value="therapist">Therapist</option>
+                <option value="therapist">Therapist/Freelance</option>
                 <option value="salong">Salong</option>
               </select>
             </label>

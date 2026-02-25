@@ -262,7 +262,7 @@ export default function Profile() {
         {profile?.role === 'customer' && (
           <>
             <h2 className="profile-section-title">Profile photos (1–5)</h2>
-            <p className="profile-images-hint">These are shown when therapists swipe. Add 1–5 photos.</p>
+            <p className="profile-images-hint">These are shown when therapists/freelancers swipe. Add 1–5 photos.</p>
             <div className="profile-customer-images">
               {customerImages.map((url, i) => (
                 <div key={url} className="profile-customer-image-wrap">

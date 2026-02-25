@@ -9,7 +9,7 @@
 - **Implementera** = ta koden från GitHub och behålla den som den är. Utför punkt för punkt.
 - **Göra om** = skriva ny kod, ändra struktur, ta bort eller ersätta filer. Det ska Lovable **inte** göra.
 
-**Arbeta igenom checklistan steg för steg, en punkt i taget (A1 → A2 → A3 → A4 → A5 → B1 → B2 → B3 → C1 → C2 → D).** Kryssa av varje punkt när den är klar. Hoppa inte över steg. Om något av detta saknas eller har tagits bort får användare fel eller sidan fungerar inte.
+**Arbeta igenom checklistan steg för steg, en punkt i taget (A1 → A2 → A3 → A4 → A5 → A6 → B1 → B2 → B3 → C1 → C2 → D).** Kryssa av varje punkt när den är klar. Hoppa inte över steg. Om något av detta saknas eller har tagits bort får användare fel eller sidan fungerar inte.
 
 ---
 
@@ -75,6 +75,19 @@ Alla köpknappar måste kolla `user` innan checkout. Vid `!user` → redirect ti
 | `src/components/ExitIntentPopup.tsx` | Ja | Visar "Claim"-knapp endast när `user` finns. Annars "Register below to get 20% off". **Trigger:** `visibilitychange` (tabstängning) + `mouseleave` med `clientY <= 0`. Popup visas **enbart på `/login`-sidan** och max en gång per session (sessionStorage). |
 
 **Backend (create-checkout):** Kräver redan auth; returnerar 401 om ingen token. **stripe-webhook:** Aktiverar köp endast om `metadata.user_id` eller `client_reference_id` finns – annars kopplas inte köpet till någon användare.
+
+### A6. Terminology: therapist/freelance i alla användarvisade texter
+
+Överallt där användaren ser "therapist" eller "therapists" i UI ska det stå "therapist/freelance" (singular) respektive "therapists/freelancers" (plural). **Undantag:** Ändra inte databas-/API-namn (tabell `therapists`, kolumn `therapist_id`, RPC `get_therapists_visible`), env (`VITE_STRIPE_THERAPIST_*`) eller typnamn i kod.
+
+| Fil | Kontroll |
+|-----|----------|
+| `src/components/PaywallModal/PaywallModal.tsx` | BENEFITS: "Chat verified therapists/freelancers". |
+| `src/pages/Pricing.tsx` | plan-desc: "Unlock 1 therapist/freelance or salong + direct contact"; rubriker "Therapist/Freelance Plans" etc. |
+| `src/pages/Profile.tsx` | profile-images-hint: "when therapists/freelancers swipe". |
+| `src/pages/admin/AdminContent.tsx` | Tab: "Therapists/Freelancers ({count})"; confirm: "Ban this therapist/freelance listing?". |
+| `src/pages/admin/AdminUsers.tsx` | Options: "Therapists/Freelancers" och "Therapist/Freelance". |
+| `src/pages/admin/AdminDashboard.tsx` | stat-sublabel: "X therapists/freelancers"; nav-desc: "Therapists/freelancers & discounts". |
 
 ---
 
@@ -172,5 +185,6 @@ Kryssa av efter varje Pull och efter deploy:
 6. **Flytta AdminFooterButton** tillbaka till Layout → Admin-knappen försvinner från landningssidan. Den **ska** renderas i `App.tsx` (globalt, utanför router) så den syns på alla sidor inklusive `/login`.
 7. **Hardcoda sökvägar** istället för att använda `ROUTES` från `src/constants/routes.ts` → risk för typos och trasiga navigeringar vid route-ändring.
 8. **Ändra ExitIntentPopup-trigger** → popupen ska använda `visibilitychange` + `mouseleave clientY <= 0`, **inte** känsligare villkor som gör att den visas för ofta.
+9. **Glömma therapist/freelance-terminologi** i användarvisade texter (A6) så att det står konsekvent "therapist/freelance" och "therapists/freelancers" överallt i UI.
 
 **Efter varje Pull:** gå igenom A1–A5, kör D1, och kontrollera att B1–B2 är uppfyllda i Supabase. **Implementera – gör inte om.** Då synkar front och backend utan fel.

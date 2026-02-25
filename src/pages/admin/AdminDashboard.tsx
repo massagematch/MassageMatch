@@ -116,7 +116,7 @@ export default function AdminDashboard() {
           <div className="stat-label">Active Users</div>
           <div className="stat-value">{stats?.active_users ?? 0}</div>
           <div className="stat-sublabel">
-            {stats?.active_customers ?? 0} customers, {stats?.active_therapists ?? 0} therapists,{' '}
+            {stats?.active_customers ?? 0} customers, {stats?.active_therapists ?? 0} therapists/freelancers,{' '}
             {stats?.active_salongs ?? 0} salongs
           </div>
         </div>
@@ -210,7 +210,7 @@ export default function AdminDashboard() {
         <Link to={ROUTES.ADMIN_CONTENT} className="nav-card">
           <span className="nav-icon">📝</span>
           <span className="nav-title">Content</span>
-          <span className="nav-desc">Therapists & discounts</span>
+          <span className="nav-desc">Therapists/freelancers & discounts</span>
         </Link>
         <Link to={ROUTES.ADMIN_STRIPE} className="nav-card">
           <span className="nav-icon">💰</span>

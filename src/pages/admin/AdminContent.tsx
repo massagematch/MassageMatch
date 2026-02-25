@@ -69,7 +69,7 @@ export default function AdminContent() {
   }
 
   async function handleBanTherapist(id: string) {
-    if (!confirm('Ban this therapist listing?')) return
+    if (!confirm('Ban this therapist/freelance listing?')) return
     try {
       await supabase.from('therapists').delete().eq('id', id)
       await logAdminAction('ban_therapist', 'therapist', id)
@@ -143,7 +143,7 @@ export default function AdminContent() {
           onClick={() => setActiveTab('therapists')}
           className={`tab-btn ${activeTab === 'therapists' ? 'active' : ''}`}
         >
-          Therapists ({therapists.length})
+          Therapists/Freelancers ({therapists.length})
         </button>
         <button
           type="button"
