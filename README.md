@@ -298,9 +298,20 @@ Targets for mobile and PC: Initial load &lt; 3 s; cache hit &lt; 0.5 s; push rea
 
 ## 📚 Docs in Repo
 
-- **`LOVABLE_INSTRUCTIONS.md`** – **Lovable: primär guide.** Skriven i Lovable's interna mönster (search-replace, design tokens, Supabase patterns). Arkitektur, filer att bevara, verifieringssteg. **Läs denna först.**
+**Lovable/Cursor:** Läs **WORKFLOW.md** för arbetsflöde (före/efter varje uppgift). För dagligt arbete: följ WORKFLOW.md och uppdatera TODO.md, COMPLETED.md, ERRORS.md, IMPLEMENTATION_STATUS.md.
+
+- **`WORKFLOW.md`** – **Arbetsflöde.** Innan/efter varje uppgift: läs TODO, COMPLETED, ERRORS, IMPLEMENTATION_STATUS; uppdatera COMPLETED, ERRORS, IMPLEMENTATION_STATUS vid behov; typecheck, build, commit, push. Lovable/Cursor-specifika instruktioner.
+- **`TODO.md`** – Uppgifter prioriterade (Critical, High, Medium, Low).
+- **`COMPLETED.md`** – Kronologisk logg genomförda uppgifter.
+- **`ERRORS.md`** – Buggar med status, repro, lösning.
+- **`TESTING_LOG.md`** – Logg av testkörningar (datum, funktion, resultat).
+- **`LOVABLE_INSTRUCTIONS.md`** – **Lovable: primär guide.** Skriven i Lovable's interna mönster (search-replace, design tokens, Supabase patterns). Arkitektur, filer att bevara, verifieringssteg.
 - **`LOVABLE_SYNC_CHECKLIST.md`** – **Lovable: detaljerad checklista.** Steg för steg (A1–A6, B1–B3, C1–C2, D). Frontend-filer, backend, secrets, env, verifiering.
 - **`LOVABLE_PULL_CHECKLIST.md`** – Snabblista över filer att hämta efter Pull.
+- **`LOVABLE_DEPLOY_CHECKLIST.md`** – Pre-/Post-deploy för Lovable (env, build, smoke test).
+- **`GITHUB_CHECKLIST.md`** – Före/efter push, commit message format.
+- **`PRE_LAUNCH_CHECKLIST.md`** – Sammanställning före go-live (TODO, ERRORS, TESTING_LOG, backup, GO LIVE).
+- **`WEEKLY_REPORT.md`** – Mall för veckosammanfattning (genomfört, kvar, blockers).
 - **`IMPLEMENTATION_STATUS.md`** – Vad som är genomfört och vad som återstår (uppdateras vid ändringar; Lovable/Cursor-referens).
 - **`IMPLEMENTATION_GUIDE.md`** – Error Boundaries, Offline Mode (IndexedDB), Push ("Ny like!"), Lazy Loading; kod och filstruktur.
 - **`TESTING_CHECKLIST.md`** – Komplett testguide för error boundaries, offline, push, lazy loading, performance 4G.

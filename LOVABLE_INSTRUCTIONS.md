@@ -8,6 +8,8 @@
 
 **IMPLEMENT – do not rewrite.** This codebase is production-ready from GitHub. Your job is to preserve and deploy it, not rebuild it.
 
+**Before changing anything:** Read **WORKFLOW.md**, **TODO.md**, **COMPLETED.md**, **ERRORS.md**, **IMPLEMENTATION_STATUS.md** so you know where the project stands.
+
 - Use `lov-line-replace` for edits, not `lov-write` (except for new files)
 - Check "useful-context" before reading files
 - Batch parallel operations
