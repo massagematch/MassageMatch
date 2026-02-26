@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { MapButton } from '@/components/MapButton'
@@ -8,6 +9,8 @@ import { trackUnlockFunnel } from '@/lib/analytics'
 import { ROUTES } from '@/constants/routes'
 import { invokeCreateCheckoutWithTimeout } from '@/lib/checkout'
 import './UnlockedProfiles.css'
+
+const CANONICAL_UNLOCKED = 'https://massagematchthai.com/unlocked-profiles'
 
 const UNLOCK_PRICE_ID = import.meta.env.VITE_STRIPE_UNLOCK_PROFILE ?? ''
 const EXTEND_PRICE_THB = 24
@@ -113,14 +116,32 @@ export default function UnlockedProfiles() {
 
   if (loading) {
     return (
-      <div className="unlocked-page">
-        <p className="muted">Loading…</p>
-      </div>
+      <>
+        <Helmet>
+          <title>Unlocked Profiles | MassageMatch Thailand</title>
+          <meta name="description" content="Your unlocked therapist profiles and contact details." />
+          <link rel="canonical" href={CANONICAL_UNLOCKED} />
+        </Helmet>
+        <div className="unlocked-page">
+          <p className="muted">Loading…</p>
+        </div>
+      </>
     )
   }
 
   return (
-    <div className="unlocked-page">
+    <>
+      <Helmet>
+        <title>Unlocked Profiles | MassageMatch Thailand</title>
+        <meta
+          name="description"
+          content="Your unlocked therapist profiles. Contact therapists directly via WhatsApp or call."
+        />
+        <link rel="canonical" href={CANONICAL_UNLOCKED} />
+        <meta property="og:title" content="Unlocked Profiles | MassageMatch Thailand" />
+        <meta property="og:url" content={CANONICAL_UNLOCKED} />
+      </Helmet>
+      <div className="unlocked-page">
       <h1>Unlocked profiles</h1>
       {window.location.search.includes('success=1') && (
         <div className="alert success">Unlock successful. You can contact below.</div>
@@ -188,5 +209,6 @@ export default function UnlockedProfiles() {
         <Link to={ROUTES.SWIPE}>← Back to Swipe</Link>
       </p>
     </div>
+    </>
   )
 }

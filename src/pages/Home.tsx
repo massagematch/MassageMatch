@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { ROUTES } from '@/constants/routes'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { OptimizedImage } from '@/components/OptimizedImage'
 import { PaywallModal } from '@/components/PaywallModal'
 import './Home.css'
+
+const CANONICAL_HOME = 'https://massagematchthai.com/'
 
 type TopTherapist = {
   id: string
@@ -46,7 +49,24 @@ export default function Home({ city: citySlug }: HomeProps = {}) {
   }, [cityName])
 
   return (
-    <div className="home">
+    <>
+      <Helmet>
+        <title>MassageMatch Thailand | Freelance Massage in Phuket, Bangkok &amp; Pattaya</title>
+        <meta
+          name="description"
+          content="Find and book freelance massage in Thailand. Browse therapists in Phuket, Bangkok and Pattaya, then book an outcall to your hotel."
+        />
+        <link rel="canonical" href={CANONICAL_HOME} />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="MassageMatch Thailand" />
+        <meta
+          property="og:description"
+          content="Freelance massage in Phuket, Bangkok & Pattaya. Browse and book outcall to your hotel."
+        />
+        <meta property="og:url" content={CANONICAL_HOME} />
+        <meta name="twitter:card" content="summary_large_image" />
+      </Helmet>
+      <div className="home">
       <h1>Welcome to MassageMatch Thailand</h1>
       <p className="muted">
         You have <strong>{profile?.swipes_remaining ?? 0}</strong> free swipes today.
@@ -104,5 +124,6 @@ export default function Home({ city: citySlug }: HomeProps = {}) {
 
       <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} mode="signup" />
     </div>
+    </>
   )
 }

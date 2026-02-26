@@ -7,7 +7,6 @@ import { ExitIntentPopup } from '@/components/ExitIntentPopup'
 import { WhatsAppButton } from '@/components/WhatsAppButton'
 import PWAInstallBanner from '@/components/PWAInstallBanner'
 import { ChatBubble } from '@/components/ChatBubble'
-import { SEOHead } from '@/components/SEOHead'
 import { AdminRoute } from '@/components/AdminRoute'
 import { AdminFooterButton } from '@/components/AdminFooterButton'
 import { ROUTES } from '@/constants/routes'
@@ -132,7 +131,6 @@ function AppRoutes() {
 export default function App() {
   return (
     <AuthProvider>
-      <SEOHead />
       <AppRoutes />
       <ExitIntentPopup />
       <WhatsAppButton />

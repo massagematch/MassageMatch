@@ -1,11 +1,14 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useAuth } from '@/contexts/AuthContext'
 import { AccessTimer } from '@/components/AccessTimer'
 import { supabase } from '@/lib/supabase'
 import { ROUTES } from '@/constants/routes'
 import { invokeCreateCheckoutWithTimeout } from '@/lib/checkout'
 import './Premium.css'
+
+const CANONICAL_PREMIUM = 'https://massagematchthai.com/premium'
 
 const PREMIUM_PRICE_ID = import.meta.env.VITE_STRIPE_PREMIUM_PRICE_ID ?? ''
 
@@ -59,7 +62,18 @@ export default function Premium() {
   const hasActiveAccess = accessExpires != null && accessExpires > new Date()
 
   return (
-    <div className="premium-page">
+    <>
+      <Helmet>
+        <title>Premium | MassageMatch Thailand</title>
+        <meta
+          name="description"
+          content="Get 12 hours of premium access plus 10 extra swipes. Unlock full MassageMatch Thailand."
+        />
+        <link rel="canonical" href={CANONICAL_PREMIUM} />
+        <meta property="og:title" content="Premium | MassageMatch Thailand" />
+        <meta property="og:url" content={CANONICAL_PREMIUM} />
+      </Helmet>
+      <div className="premium-page">
       <h1>Premium — 12h access</h1>
       <p className="muted">Get 12 hours of premium access plus 10 extra swipes.</p>
       <AccessTimer />
@@ -76,5 +90,6 @@ export default function Premium() {
         {loading ? 'Redirecting…' : 'Buy 12h Premium'}
       </button>
     </div>
+    </>
   )
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Helmet } from 'react-helmet-async'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { useSocialValidation } from '@/hooks/useSocialValidation'
@@ -8,6 +9,8 @@ import { PlanTimer } from '@/components/PlanTimer'
 import { trackEvent } from '@/lib/analytics'
 import { ROUTES } from '@/constants/routes'
 import './Profile.css'
+
+const CANONICAL_PROFILE = 'https://massagematchthai.com/profile'
 
 type SocialLinks = {
   instagram?: string
@@ -236,7 +239,18 @@ export default function Profile() {
   }
 
   return (
-    <div className="profile-page">
+    <>
+      <Helmet>
+        <title>Profile | MassageMatch Thailand</title>
+        <meta
+          name="description"
+          content="Edit your MassageMatch profile: photos, location, bio, prices and services."
+        />
+        <link rel="canonical" href={CANONICAL_PROFILE} />
+        <meta property="og:title" content="Profile | MassageMatch Thailand" />
+        <meta property="og:url" content={CANONICAL_PROFILE} />
+      </Helmet>
+      <div className="profile-page">
       <h1>Your Profile</h1>
       <p className="profile-subtitle">Edit your profile</p>
       {(profile?.role === 'therapist' || profile?.role === 'salong') && (
@@ -550,5 +564,6 @@ export default function Profile() {
         </div>
       )}
     </div>
+    </>
   )
 }

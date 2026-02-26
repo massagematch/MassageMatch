@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { useAuth } from '@/contexts/AuthContext'
 import { PlanTimer } from '@/components/PlanTimer'
 import { PromoCodeInput } from '@/components/PromoCodeInput'
@@ -9,6 +10,8 @@ import { trackStripeFunnel } from '@/lib/analytics'
 import { ROUTES } from '@/constants/routes'
 import { invokeCreateCheckoutWithTimeout } from '@/lib/checkout'
 import './Pricing.css'
+
+const CANONICAL_PRICING = 'https://massagematchthai.com/pricing'
 
 // Stripe Price IDs (set in env)
 const PRICE_IDS = {
@@ -89,7 +92,18 @@ export default function Pricing() {
   }
 
   return (
-    <div className="pricing-page">
+    <>
+      <Helmet>
+        <title>Pricing | MassageMatch Thailand</title>
+        <meta
+          name="description"
+          content="View MassageMatch Thailand pricing: unlock profiles, 12h unlimited, therapist and salong plans."
+        />
+        <link rel="canonical" href={CANONICAL_PRICING} />
+        <meta property="og:title" content="Pricing | MassageMatch Thailand" />
+        <meta property="og:url" content={CANONICAL_PRICING} />
+      </Helmet>
+      <div className="pricing-page">
       <h1>Pricing Plans</h1>
       {error && <div className="alert error">{error}</div>}
       {window.location.search.includes('success=1') && (
@@ -240,5 +254,6 @@ export default function Pricing() {
         </div>
       )}
     </div>
+    </>
   )
 }

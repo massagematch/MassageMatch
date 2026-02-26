@@ -70,6 +70,16 @@ Dessa filer **måste** vara uppdaterade i Lovable så att användare inte får f
 - [ ] **`public/ads.txt`** – Adnium (10183 + 11745, pubid 1002887). Ska serveras som /ads.txt
 - [ ] **`index.html`** – annonslogik (premium = inga annonser), Adnium-script, SEO
 
+### SEO (react-helmet-async)
+Lovable ska **implementera** (inte ta bort eller göra om):
+- [ ] **`src/main.tsx`** – `HelmetProvider` från `react-helmet-async` wrappar `<App />` (inom BrowserRouter). Paketet `react-helmet-async` ska vara installerat.
+- [ ] **`index.html`** – canonical och og:url (samt hreflang, og:image) använder **https://massagematchthai.com** (inte massagematch.lovable.app).
+- [ ] **`src/App.tsx`** – global `<SEOHead />` är **borttagen** (ersatt av per-sida Helmet).
+- [ ] **Per-sida Helmet** i: Home, Login, Contact, TopPage, Swipe, Premium, Pricing, Dashboard, Profile, UnlockedProfiles, FAQ, CityPage – med sidpecifik title, description, canonical (https://massagematchthai.com + path) och og/twitter där det användes.
+- [ ] **`src/pages/cities/CityPage.tsx`** – dynamisk canonical och title/description utifrån stad (ingen manuell `document.title`/meta i useEffect).
+
+Lovable ska **inte**: ta bort `react-helmet-async`, ersätta Helmet med en enda global titel/description för hela sajten, eller återinföra global SEOHead som skriver över sidtitlar.
+
 ### Supabase Edge Functions (deployas i Supabase, inte Lovable)
 - [ ] `supabase/functions/_shared/resend.ts`
 - [ ] `supabase/functions/send-register/index.ts`, `send-payment`, `send-like`, `send-match`, `send-contact`

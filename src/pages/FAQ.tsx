@@ -1,5 +1,8 @@
+import { Helmet } from 'react-helmet-async'
 import { FAQSchemaMarkup } from '@/components/SchemaMarkup'
 import './FAQ.css'
+
+const CANONICAL_FAQ = 'https://massagematchthai.com/faq'
 
 const legalId = 'legal'
 
@@ -44,7 +47,16 @@ const legalSection = (
 
 export default function FAQ() {
   return (
-    <div className="faq-page">
+    <>
+      <Helmet>
+        <title>FAQ | MassageMatch Thailand</title>
+        <meta
+          name="description"
+          content="Frequently asked questions about MassageMatch Thailand: profiles, matching, bookings and safety."
+        />
+        <link rel="canonical" href={CANONICAL_FAQ} />
+      </Helmet>
+      <div className="faq-page">
       <h1>Frequently Asked Questions</h1>
       <FAQSchemaMarkup data={{ questions: faqs }} />
       <div className="faq-list">
@@ -57,5 +69,6 @@ export default function FAQ() {
       </div>
       {legalSection}
     </div>
+    </>
   )
 }

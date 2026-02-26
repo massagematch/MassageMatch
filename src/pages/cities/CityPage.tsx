@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams, Navigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { ROUTES } from '@/constants/routes'
 import { supabase } from '@/lib/supabase'
 import { OptimizedImage } from '@/components/OptimizedImage'
@@ -23,24 +24,6 @@ export default function CityPage() {
   const [showPaywall, setShowPaywall] = useState(false)
 
   useEffect(() => {
-    if (!data) return
-    document.title = `${data.title} | MassageMatch Thailand`
-    let meta = document.querySelector('meta[name="description"]')
-    if (!meta) {
-      meta = document.createElement('meta')
-      meta.setAttribute('name', 'description')
-      document.head.appendChild(meta)
-    }
-    meta.setAttribute(
-      'content',
-      `Bästa ${data.h1}. Freelance terapeuter ${data.locations.join(', ')}. Boka massage nära dig.`
-    )
-    return () => {
-      document.title = 'MassageMatch Thailand'
-    }
-  }, [data])
-
-  useEffect(() => {
     if (!data?.cityName) return
     const load = async () => {
       const { data: list } = await supabase.rpc('get_therapists_visible', {
@@ -56,8 +39,20 @@ export default function CityPage() {
     return <Navigate to={ROUTES.HOME} replace />
   }
 
+  const canonical = `https://massagematchthai.com/${validSlug}`
+  const description = `Best ${data.h1}. Freelance therapists ${data.locations.join(', ')}. Book massage near you.`
+
   return (
-    <div className="city-page">
+    <>
+      <Helmet>
+        <title>{data.title} | MassageMatch Thailand</title>
+        <meta name="description" content={description} />
+        <link rel="canonical" href={canonical} />
+        <meta property="og:title" content={`${data.h1} | MassageMatch Thailand`} />
+        <meta property="og:description" content={description} />
+        <meta property="og:url" content={canonical} />
+      </Helmet>
+      <div className="city-page">
       <h1 className="city-page-h1">{data.h1}</h1>
       <p className="city-page-desc">
         Bästa freelance-terapeuter i {data.cityName}. Massage inom området – boka via Swipe.
@@ -118,5 +113,6 @@ export default function CityPage() {
 
       <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} mode="signup" />
     </div>
+    </>
   )
 }

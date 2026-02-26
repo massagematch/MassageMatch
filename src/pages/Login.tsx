@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { ROUTES } from '@/constants/routes'
 import { supabase } from '@/lib/supabase'
 import { LocationSelector, type LocationValue } from '@/components/LocationSelector'
 import './Login.css'
+
+const CANONICAL_LOGIN = 'https://massagematchthai.com/login'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -91,7 +94,18 @@ export default function Login() {
   }
 
   return (
-    <div className="login-page">
+    <>
+      <Helmet>
+        <title>Login | MassageMatch Thailand</title>
+        <meta
+          name="description"
+          content="Log in to MassageMatch Thailand to manage your profile, matches and messages. Create your profile to get discovered by people searching for massage in Thailand."
+        />
+        <link rel="canonical" href={CANONICAL_LOGIN} />
+        <meta property="og:title" content="Login | MassageMatch Thailand" />
+        <meta property="og:url" content={CANONICAL_LOGIN} />
+      </Helmet>
+      <div className="login-page">
       <div className="login-card">
         <h1>MassageMatch Thailand</h1>
         <p className="subtitle">Connect with trusted therapists/freelancers</p>
@@ -167,5 +181,6 @@ export default function Login() {
         </p>
       </div>
     </div>
+    </>
   )
 }

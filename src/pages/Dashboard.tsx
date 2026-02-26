@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { ROUTES } from '@/constants/routes'
 import { useAuth } from '@/contexts/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { OptimizedImage } from '@/components/OptimizedImage'
 import './Dashboard.css'
+
+const CANONICAL_DASHBOARD = 'https://massagematchthai.com/dashboard'
 
 type AITherapist = {
   id: string
@@ -78,7 +81,18 @@ export default function Dashboard() {
   }, [])
 
   return (
-    <div className="dashboard">
+    <>
+      <Helmet>
+        <title>Dashboard | MassageMatch Thailand</title>
+        <meta
+          name="description"
+          content="Your MassageMatch dashboard: swipes, premium status, AI recommendations and nearby therapists."
+        />
+        <link rel="canonical" href={CANONICAL_DASHBOARD} />
+        <meta property="og:title" content="Dashboard | MassageMatch Thailand" />
+        <meta property="og:url" content={CANONICAL_DASHBOARD} />
+      </Helmet>
+      <div className="dashboard">
       <h1>Dashboard</h1>
       <div className="metrics">
         <div className="metric">
@@ -191,5 +205,6 @@ export default function Dashboard() {
         Admin metrics (total users, swipes, revenue) are available in Supabase dashboard and logs table.
       </p>
     </div>
+    </>
   )
 }

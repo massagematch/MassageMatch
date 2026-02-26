@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { ROUTES } from '@/constants/routes'
 import { useAuth } from '@/contexts/AuthContext'
 import { useSwipe } from '@/hooks/useSwipe'
@@ -11,6 +12,21 @@ import { trackSwipe } from '@/lib/analytics'
 import { distanceKm } from '@/lib/geo'
 import { getCachedSwipeList, setCachedSwipeList, isOnline } from '@/lib/offlineCache'
 import './Swipe.css'
+
+const CANONICAL_SWIPE = 'https://massagematchthai.com/swipe'
+
+const SwipeHelmet = () => (
+  <Helmet>
+    <title>Swipe Therapists | MassageMatch Thailand</title>
+    <meta
+      name="description"
+      content="Swipe through therapists and discover your best match. Browse profiles and request an outcall in Thailand."
+    />
+    <link rel="canonical" href={CANONICAL_SWIPE} />
+    <meta property="og:title" content="Swipe Therapists | MassageMatch Thailand" />
+    <meta property="og:url" content={CANONICAL_SWIPE} />
+  </Helmet>
+)
 
 const RADIUS_KM = 5
 const CARD_SWIPE_THRESHOLD = 80
@@ -170,31 +186,42 @@ export default function Swipe() {
 
   if (listLoading && currentList.length === 0) {
     return (
-      <div className="swipe-page swipe-page-full">
-        <p className="muted">{isTherapist ? 'Loading customers…' : 'Loading therapists…'}</p>
-      </div>
+      <>
+        <SwipeHelmet />
+        <div className="swipe-page swipe-page-full">
+          <p className="muted">{isTherapist ? 'Loading customers…' : 'Loading therapists…'}</p>
+        </div>
+      </>
     )
   }
   if (currentList.length === 0 && index === 0) {
     return (
-      <div className="swipe-page swipe-page-full">
-        <p className="muted">{isTherapist ? 'No customers yet. Customers add photos in Profile → Bilder.' : 'No therapists in this area.'}</p>
-        <Link to={ROUTES.HOME}>Back to home</Link>
-      </div>
+      <>
+        <SwipeHelmet />
+        <div className="swipe-page swipe-page-full">
+          <p className="muted">{isTherapist ? 'No customers yet. Customers add photos in Profile → Bilder.' : 'No therapists in this area.'}</p>
+          <Link to={ROUTES.HOME}>Back to home</Link>
+        </div>
+      </>
     )
   }
 
   if (index >= currentList.length) {
     return (
-      <div className="swipe-page swipe-page-full">
-        <p>No more therapists right now.</p>
-        <Link to={ROUTES.HOME}>Back to home</Link>
-      </div>
+      <>
+        <SwipeHelmet />
+        <div className="swipe-page swipe-page-full">
+          <p>No more therapists right now.</p>
+          <Link to={ROUTES.HOME}>Back to home</Link>
+        </div>
+      </>
     )
   }
 
   return (
-    <div className="swipe-page swipe-page-full">
+    <>
+      <SwipeHelmet />
+      <div className="swipe-page swipe-page-full">
       <header className="swipe-header-bar">
         <button type="button" className="swipe-header-btn" onClick={handleUndo} aria-label="Undo">
           ↶ Undo
@@ -265,5 +292,6 @@ export default function Swipe() {
       )}
       <PaywallModal open={showPaywall} onClose={() => setShowPaywall(false)} mode="premium" />
     </div>
+    </>
   )
 }
