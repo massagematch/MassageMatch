@@ -80,6 +80,15 @@ Lovable ska **implementera** (inte ta bort eller göra om):
 
 Lovable ska **inte**: ta bort `react-helmet-async`, ersätta Helmet med en enda global titel/description för hela sajten, eller återinföra global SEOHead som skriver över sidtitlar.
 
+### Favicon & site icon (Google)
+Lovable ska **implementera** (favicon kvadratisk 1:1, crawlbar på domänen; Google rekommenderar >48×48):
+- [ ] **`public/`** – Favicon-filer finns: `favicon.ico`, `favicon-48.png`, `favicon-96.png`, `favicon-192.png` (genererade från logotypen, kvadratiska).
+- [ ] **`index.html`** – I `<head>` finns: `<link rel="icon" href="/favicon.ico">`, `<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">`, `<link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png">`, `<link rel="apple-touch-icon" sizes="192x192" href="/favicon-192.png">`.
+- [ ] **`index.html`** – `og:image` pekar på `https://massagematchthai.com/favicon-192.png` (så att delningar visar logotypen).
+- [ ] **`public/manifest.json`** – PWA-ikoner pekar på `/favicon-96.png` och `/favicon-192.png` (inte `/icons/icon-*` om de inte finns).
+
+Efter deploy: verifiera att `https://massagematchthai.com/favicon.ico` svarar 200. I Google Search Console: URL-inspektion av startsidan → "Begär indexering" så Google snabbare plockar upp faviconen.
+
 ### Supabase Edge Functions (deployas i Supabase, inte Lovable)
 - [ ] `supabase/functions/_shared/resend.ts`
 - [ ] `supabase/functions/send-register/index.ts`, `send-payment`, `send-like`, `send-match`, `send-contact`
