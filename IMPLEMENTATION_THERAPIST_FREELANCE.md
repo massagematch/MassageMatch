@@ -2,6 +2,8 @@
 
 Use this together with **LOVABLE_IMPLEMENTATION.md**. Ensures therapist 3-month free code, timer, visibility rule, UI terminology, and legal disclaimer work front + backend.
 
+**→ Quick deploy checklist:** See **LOVABLE_CHECKLIST_THERAPIST_FREELANCE.md** for step-by-step Supabase + GitHub push.
+
 ---
 
 ## Checklist
