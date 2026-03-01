@@ -58,7 +58,10 @@ export default function Login() {
     }
     setLoading(true)
     try {
-      const { data, error: err } = await supabase.auth.signUp({ email, password })
+      const { data, error: err } = await supabase.auth.signUp(
+        { email, password },
+        { options: { data: { role } } }
+      )
       if (err) throw err
       if (data.user) {
         const birthYear = currentYear - age
@@ -85,7 +88,16 @@ export default function Login() {
           console.error('Welcome email failed:', e)
         }
       }
-      setMessage('Check your email to confirm sign up.')
+      // When email confirmation is disabled (or auth-webhook auto-confirmed therapist/salong), session exists → go straight in
+      if (data.session) {
+        navigate(returnTo, { replace: true })
+        return
+      }
+      setMessage(
+        role === 'therapist' || role === 'salong'
+          ? 'Account created! Sign in with your email and password to continue.'
+          : 'Check your email to confirm sign up.'
+      )
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Sign up failed')
     } finally {
