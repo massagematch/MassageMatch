@@ -7,6 +7,7 @@ Use this together with **LOVABLE_IMPLEMENTATION.md**. Ensures therapist 3-month 
 ## Checklist
 
 1. [ ] **Migration 16** applied: `get_therapists_visible` RPC (therapists with `plan_expires > now()` only).
+1. [ ] **Migration 21** applied: verified therapists first in toplist/swipe (`ORDER BY verified_photo`).
 2. [ ] **Edge Function apply-promo** deployed; no extra secrets.
 3. [ ] **UI terminology:** "Therapist/Freelance", "therapists/freelancers" in Login, Pricing, Home, FAQ, Layout role badge, PromoCodeInput.
 4. [ ] **FAQ #legal** section + styles; footer "FAQ & Regler | thaimassagematch@hotmail.com".
@@ -31,6 +32,15 @@ File: `supabase/migrations/20260220000016_therapist_visible_and_promo.sql`
 - **Auth:** Bearer token required.
 - **Logic:** Require profile `role === 'therapist'`, `promo_used === false`. Set `plan_expires = now() + 90 days`, `plan_type = 'premium'`, `promo_used = true`, `visibility_score = 3`. Upsert `therapists` with `id = user.id`, `name = email prefix`.
 - **Deploy:** `supabase functions deploy apply-promo`
+
+### Edge Function: auth-webhook (therapist/salong sign-up without email confirmation)
+
+- **Path:** `supabase/functions/auth-webhook/index.ts`
+- **Purpose:** Auto-confirms therapist/freelance and salong users on sign-up so they can sign in immediately without email verification.
+- **Configure:** Supabase Dashboard → Database → Webhooks → Create webhook:
+  - Table: `profiles`, Events: `INSERT`, URL: `https://<project-ref>.supabase.co/functions/v1/auth-webhook`
+- **Alternative:** Disable "Confirm email" in Auth → Providers → Email for all users (simpler, but affects customers too).
+- **Deploy:** `supabase functions deploy auth-webhook`
 
 ---
 

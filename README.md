@@ -64,6 +64,7 @@ Apply these in your **Supabase SQL Editor** (or CLI) in numeric order:
 | 18 | `20260220000018_referral_referrer.sql` | Referral: `profiles.referrer_id`, `referral_days`; ?ref= on signup; referrer gets +7d when referred user pays |
 | 19 | `20260220000019_referral_leaderboard.sql` | `get_referral_leaderboard(lim)` RPC for Dashboard top 10 referrers |
 | 20 | `20260220000020_push_subscriptions.sql` | Push notifications: `push_subscriptions` (user_id, subscription jsonb) for "Ny like!" |
+| 21 | `20260220000021_verified_first_and_auth_webhook.sql` | get_therapists_visible: verified users first in toplist/swipe |
 
 **Important:** All migrations must be applied for frontend and Edge Functions to work without errors.
 
@@ -98,6 +99,7 @@ Deploy from `supabase/functions/`. Set secrets in Supabase Dashboard → Edge Fu
 | `ai-recommendations` | AI therapist recommendations | Optional OpenAI/key |
 | `chat-query` | Natural-language chat → therapist matches | Optional; uses profile bio/services/prices |
 | `apply-promo` | Therapist 3-month free code (NEWTHERAPIST90) | None; sets plan_expires, promo_used, ensures therapists row |
+| `auth-webhook` | Auto-confirm therapist/salong on sign-up (no email verification) | None; configure Database Webhook on `profiles` INSERT → URL to this function |
 | `notify-push` | Web Push "Ny like!" when someone likes you | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` (generate with `npx web-push generate-vapid-keys`) |
 | `send-welcome` / `send-register` | Welcome email on signup (Resend) | `RESEND_API_KEY`; FROM_EMAIL / TO_EMAIL optional |
 | `send-payment` | Premium/betalning bekräftelse (invoked from stripe-webhook) | Same Resend secrets |
@@ -113,6 +115,7 @@ supabase functions deploy validate-thailand-bounds
 supabase functions deploy ai-recommendations
 supabase functions deploy chat-query
 supabase functions deploy apply-promo
+supabase functions deploy auth-webhook
 supabase functions deploy notify-push
 supabase functions deploy send-welcome
 supabase functions deploy send-register
@@ -141,6 +144,8 @@ supabase functions deploy send-contact
 
 - **Terminology:** UI uses "Therapist/Freelance" and "therapists/freelancers" (e.g. Login role, Pricing plans, Home, FAQ). DB and code keep `role = 'therapist'` and table `therapists`.
 - **3-month free:** Therapists can enter code **NEWTHERAPIST90** on **Pricing** (PromoCodeInput). Deploy **apply-promo** Edge Function; it sets `plan_expires` (+90 days), `promo_used = true`, and ensures a `therapists` row. **Timer** on Profile (PlanTimer) shows Premium active until expiry; after that they must pay Premium or they **do not appear** in customer swipe/search (migration 16: `get_therapists_visible` filters by `plan_expires > now()`).
+- **No email verification for therapist/salong:** Deploy **auth-webhook** and configure Database Webhook on `profiles` (INSERT → auth-webhook URL). Therapists/salongs can sign in immediately after sign-up. Alternative: disable "Confirm email" in Auth → Providers → Email.
+- **Verified first:** Migration 21 orders `get_therapists_visible` by `verified_photo` first; real (verified) therapists appear first in toplist and swipe. Therapist swipe of customers also orders by `verified_photo`.
 - **Legal:** FAQ has section **#legal** (Regler & Användaransvar). Login sign-up has checkbox "I agree to the rules & FAQ" and **[Läs regler]** link to `/faq#legal`. Text: "Användare ansvarar för Thai lag/licens. Inga sexuella tjänster." Contact everywhere: **thaimassagematch@hotmail.com**.
 - **Wording:** UI shows "freelance therapist" / "freelancers" where appropriate; DB keeps `role = 'therapist'` and table `therapists`.
 

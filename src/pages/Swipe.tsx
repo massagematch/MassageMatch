@@ -68,10 +68,11 @@ export default function Swipe() {
         if (isTherapist) {
           const { data } = await supabase
             .from('profiles')
-            .select('user_id, display_name, customer_images, location_city')
+            .select('user_id, display_name, customer_images, location_city, verified_photo')
             .eq('role', 'customer')
+            .order('verified_photo', { ascending: false, nullsFirst: false })
             .limit(50)
-          const rows = (data ?? []) as { user_id: string; display_name?: string | null; customer_images?: string[] | null; location_city?: string | null }[]
+          const rows = (data ?? []) as { user_id: string; display_name?: string | null; customer_images?: string[] | null; location_city?: string | null; verified_photo?: boolean | null }[]
           const asCards: SwipeCardProfile[] = rows.map((r) => {
             const imgs = Array.isArray(r.customer_images) ? r.customer_images : []
             return {
@@ -80,6 +81,7 @@ export default function Swipe() {
               image_url: imgs[0] || null,
               images: imgs.length > 0 ? imgs : null,
               location_city: r.location_city || null,
+              verified_photo: r.verified_photo ?? false,
             }
           })
           setTherapists(asCards)
